@@ -3,37 +3,38 @@ mqttws-jmeter
 
 Jmeter MQTT sampler with support for websockets 
 
-Initially a fork of https://github.com/tuanhiep/mqtt-jmeter by
-Tuan Hiep, ERODS Team, LIG- Grenoble-France
+Initially a fork of https://github.com/tuanhiep/mqtt-jmeter.
+
 
 
 # Introduction
 
 The MQTTWS Plugin in Jmeter is used for the injection testing of MQTT brokers. 
-It uses a paho based client that supports MQTT over tcp and websockets.
+It uses a paho based client (https://github.com/inventit/mqtt-websocket-java) 
+that supports MQTT over tcp and websockets.
 
 
 # How to install MQTT plugin in Jmeter
 
-From the repository: https://github.com/winglet/mqtt-jmeter  
-Get the source code, go to mqtt-jemeter folder and and use the command maven in terminal (Ubuntu):
+From the repository: https://github.com/winglet/mqttws-jmeter  
+Get the source code, go to mqttws-jemeter folder and and use the command maven in terminal (Ubuntu):
 
 	mvn clean install package
 
 You also need to build (TODO)
 
-to obtain the file **mqtt-jmeter.jar** in **mqtt-jemeter/target**.  
-Put the **mqtt-jemeter.jar** in the folder **lib/ext** of Jmeter
+to obtain the file **mqttws-jmeter.jar** in **mqttws-jemeter/target**.  
+Put the **mqttws-jemeter.jar** in the folder **lib/ext** of Jmeter
 (to be downloaded on http://jmeter.apache.org/download_jmeter.cgi ).
 
 Remind that, it's necessary to update the file **ApacheJMeter_core.jar** in the repository lib/ext of Jmeter.
 Update the file messages.properties in the folder :/org/apache/jmeter/resources/
 in **ApacheJMeter_core.jar** by new file messages.properties from
-https://github.com/tuanhiep/mqtt-jmeter/tree/master/ressource
+https://github.com/winglet/mqttws-jmeter/tree/master/ressource
 
-#  How to use MQTT plugin in Jmeter
+#  How to use MQTTWS plugin in Jmeter
 
-##  MQTT Publisher
+##  MQTTWS Publisher
 
 The interface graphic of Jmeter:
 
@@ -43,13 +44,13 @@ Right-click “Thread” and choose : Add → Sampler → MQTT Publisher
 
 ![Alt text](images/MQTT_Publisher.png)
 
-In the principal interface of MQTT Publisher we have the fields:  
+In the principal interface of MQTTWS Publisher we have the fields:  
 *Connection Info*  
 
-**Name:** Name of the MQTT Publisher  
+**Name:** Name of the MQTTWS Publisher  
 **Comments:** Your comments  
-**Provider URL:** the address of MQTT server example: tcp://localhost:1883  
-**Client Id:** Your Id in the session with MQTT server example: Noel De Palma  
+**Provider URL:** the address of MQTTWS server example: tcp://localhost:1883  
+**Client Id:** Your Id in the session with MQTTWS server example: Noel De Palma  
 **List Topic:** The list of topic's names you want to publish to  
 The topic's names are separated by a comma ","  
 For example: List Topic: GRENOBLE/LIG,GRENOBLE/UJF-LIG  
