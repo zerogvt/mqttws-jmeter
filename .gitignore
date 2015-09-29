@@ -1,0 +1,12 @@
+# binaries
+dependency-reduced-pom.xml
+target
+
+# eclipse
+.classpath
+.project
+.settings/
+
+# linux
+*~
+\#*#

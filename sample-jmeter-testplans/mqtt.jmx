@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
+      <stringProp name="TestPlan.comments"></stringProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments"/>
+      </elementProp>
+      <stringProp name="TestPlan.user_define_classpath"></stringProp>
+    </TestPlan>
+    <hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">1</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">1</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">0</stringProp>
+        <longProp name="ThreadGroup.start_time">1442389004000</longProp>
+        <longProp name="ThreadGroup.end_time">1442389004000</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </ThreadGroup>
+      <hashTree>
+        <org.apache.jmeter.protocol.mqtt.sampler.SubscriberSampler guiclass="org.apache.jmeter.protocol.mqtt.control.gui.MQTTSubscriberGui" testclass="org.apache.jmeter.protocol.mqtt.sampler.SubscriberSampler" testname="MQTT Subscriber" enabled="true">
+          <stringProp name="mqtt.provider_url">tcp://test.mosquitto.org:1883</stringProp>
+          <stringProp name="mqtt.topic">/mitsos/</stringProp>
+          <stringProp name="mqtt.security_principle">ewewew</stringProp>
+          <stringProp name="mqtt.security_credentials">ewewew</stringProp>
+          <boolProp name="mqtt.authenticate">false</boolProp>
+          <boolProp name="mqtt.random_suffix_client_id">false</boolProp>
+          <stringProp name="mqtt.suffix.length"></stringProp>
+          <boolProp name="mqtt.one_connection_per_topic">false</boolProp>
+          <stringProp name="mqtt.strategy">mqtt_round_robin</stringProp>
+          <stringProp name="mqtt.quality">mqtt_at_most_once</stringProp>
+          <stringProp name="mqtt.clean.session">false</stringProp>
+          <stringProp name="mqtt.clientId">ttytytytytyt</stringProp>
+          <stringProp name="mqtt.iterations">100</stringProp>
+          <stringProp name="mqtt.timeout">20000</stringProp>
+        </org.apache.jmeter.protocol.mqtt.sampler.SubscriberSampler>
+        <hashTree>
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+            <collectionProp name="Asserion.test_strings">
+              <stringProp name="3194802">haha</stringProp>
+            </collectionProp>
+            <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+            <boolProp name="Assertion.assume_success">false</boolProp>
+            <intProp name="Assertion.test_type">2</intProp>
+          </ResponseAssertion>
+          <hashTree/>
+          <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
+            <boolProp name="ResultCollector.error_logging">false</boolProp>
+            <objProp>
+              <name>saveConfig</name>
+              <value class="SampleSaveConfiguration">
+                <time>true</time>
+                <latency>true</latency>
+                <timestamp>true</timestamp>
+                <success>true</success>
+                <label>true</label>
+                <code>true</code>
+                <message>true</message>
+                <threadName>true</threadName>
+                <dataType>true</dataType>
+                <encoding>false</encoding>
+                <assertions>true</assertions>
+                <subresults>true</subresults>
+                <responseData>false</responseData>
+                <samplerData>false</samplerData>
+                <xml>false</xml>
+                <fieldNames>false</fieldNames>
+                <responseHeaders>false</responseHeaders>
+                <requestHeaders>false</requestHeaders>
+                <responseDataOnError>false</responseDataOnError>
+                <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
+                <assertionsResultsToSave>0</assertionsResultsToSave>
+                <bytes>true</bytes>
+                <threadCounts>true</threadCounts>
+              </value>
+            </objProp>
+            <stringProp name="filename"></stringProp>
+          </ResultCollector>
+          <hashTree/>
+          <ResultCollector guiclass="TableVisualizer" testclass="ResultCollector" testname="View Results in Table" enabled="true">
+            <boolProp name="ResultCollector.error_logging">false</boolProp>
+            <objProp>
+              <name>saveConfig</name>
+              <value class="SampleSaveConfiguration">
+                <time>true</time>
+                <latency>true</latency>
+                <timestamp>true</timestamp>
+                <success>true</success>
+                <label>true</label>
+                <code>true</code>
+                <message>true</message>
+                <threadName>true</threadName>
+                <dataType>true</dataType>
+                <encoding>false</encoding>
+                <assertions>true</assertions>
+                <subresults>true</subresults>
+                <responseData>false</responseData>
+                <samplerData>false</samplerData>
+                <xml>false</xml>
+                <fieldNames>false</fieldNames>
+                <responseHeaders>false</responseHeaders>
+                <requestHeaders>false</requestHeaders>
+                <responseDataOnError>false</responseDataOnError>
+                <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
+                <assertionsResultsToSave>0</assertionsResultsToSave>
+                <bytes>true</bytes>
+                <threadCounts>true</threadCounts>
+              </value>
+            </objProp>
+            <stringProp name="filename"></stringProp>
+          </ResultCollector>
+          <hashTree/>
+        </hashTree>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">1</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">1</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">6</stringProp>
+        <longProp name="ThreadGroup.start_time">1442316565000</longProp>
+        <longProp name="ThreadGroup.end_time">1442316565000</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </ThreadGroup>
+      <hashTree>
+        <org.apache.jmeter.protocol.mqtt.sampler.PublisherSampler guiclass="org.apache.jmeter.protocol.mqtt.control.gui.MQTTPublisherGui" testclass="org.apache.jmeter.protocol.mqtt.sampler.PublisherSampler" testname="MQTT Publisher" enabled="true">
+          <stringProp name="mqtt.provider_url">tcp://test.mosquitto.org:1883</stringProp>
+          <stringProp name="mqtt.topic">/mitsos/</stringProp>
+          <stringProp name="mqtt.security_principle"></stringProp>
+          <stringProp name="mqtt.security_credentials"></stringProp>
+          <stringProp name="mqtt.text_message">hahaha</stringProp>
+          <stringProp name="mqtt.config_msg_type">mqtt_text_message</stringProp>
+          <stringProp name="mqtt.iterations">100</stringProp>
+          <boolProp name="mqtt.authenticate">false</boolProp>
+          <stringProp name="mqtt.quality">mqtt_at_most_once</stringProp>
+          <boolProp name="mqtt.retain">false</boolProp>
+          <stringProp name="mqtt.type_fixed_value">mqtt_int_value</stringProp>
+          <stringProp name="mqtt.fixed_value"></stringProp>
+          <stringProp name="mqtt.type_random_value">mqtt_pseudo_random</stringProp>
+          <stringProp name="mqtt.max_random_value"></stringProp>
+          <stringProp name="mqtt.min_random_value"></stringProp>
+          <stringProp name="mqtt.type_generated_value">mqtt_int_value</stringProp>
+          <stringProp name="mqtt.seed"></stringProp>
+          <boolProp name="mqtt.use_timestamp">true</boolProp>
+          <boolProp name="mqtt.use_number_sequence">false</boolProp>
+          <stringProp name="mqtt.clientid">qraftgst</stringProp>
+          <stringProp name="mqtt.format">mqtt_no_encoding</stringProp>
+          <stringProp name="mqtt.charset">UTF-8</stringProp>
+          <stringProp name="mqtt.size_array"></stringProp>
+          <stringProp name="mqtt.strategy">mqtt_round_robin</stringProp>
+          <boolProp name="mqtt.one_connection_per_topic">false</boolProp>
+          <boolProp name="mqtt.random_suffix_client_id">false</boolProp>
+          <stringProp name="mqtt.suffix.length"></stringProp>
+        </org.apache.jmeter.protocol.mqtt.sampler.PublisherSampler>
+        <hashTree/>
+        <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>false</xml>
+              <fieldNames>false</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+              <threadCounts>true</threadCounts>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
+      </hashTree>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>
