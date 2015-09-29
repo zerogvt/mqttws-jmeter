@@ -21,7 +21,6 @@
  */
 
 package org.apache.jmeter.protocol.mqttws.sampler;
-import java.io.IOException;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
