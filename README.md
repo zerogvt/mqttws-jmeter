@@ -20,14 +20,15 @@ From the repository: https://github.com/winglet/mqttws-jmeter
 Get the source code, go to mqttws-jemeter folder and and use the command maven in terminal (Ubuntu):
 
 	mvn clean install package
+or (eclipse with maven plugin) select pom.xml and "Run As" "maven clean" and then "Run As" "maven install".
 
-You also need to build (TODO)
+Note: To ease the build process MQTTWS comes with prebuild jars of mqtt-websocket-java and org.eclipse.paho.client.mqttv3-1. Both of them can be rebuilt by rebuilding project https://github.com/inventit/mqtt-websocket-java. 
 
-to obtain the file **mqttws-jmeter.jar** in **mqttws-jemeter/target**.  
+This should result in the file **mqttws-jmeter.jar** in **mqttws-jmeter/target**.  
 Put the **mqttws-jemeter.jar** in the folder **lib/ext** of Jmeter
 (to be downloaded on http://jmeter.apache.org/download_jmeter.cgi ).
 
-Remind that, it's necessary to update the file **ApacheJMeter_core.jar** in the repository lib/ext of Jmeter.
+It's necessary to update the file **ApacheJMeter_core.jar** in the repository lib/ext of Jmeter (at least to see MQTTWS strings properly in GUI).
 Update the file messages.properties in the folder :/org/apache/jmeter/resources/
 in **ApacheJMeter_core.jar** by new file messages.properties from
 https://github.com/winglet/mqttws-jmeter/tree/master/ressource
