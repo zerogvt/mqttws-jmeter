@@ -35,6 +35,8 @@ https://github.com/winglet/mqttws-jmeter/tree/master/ressource
 
 #  How to use MQTTWS plugin in Jmeter
 
+TODO (some features not yet implemented - will update this section later)
+
 ##  MQTTWS Publisher
 
 The interface graphic of Jmeter:
