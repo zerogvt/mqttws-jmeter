@@ -20,7 +20,7 @@ From the repository: https://github.com/winglet/mqttws-jmeter
 Get the source code, go to mqttws-jemeter folder and and use the command maven in terminal (Ubuntu):
 
 	mvn clean install package
-or (eclipse with maven plugin) select pom.xml and "Run As" "maven clean" and then "Run As" "maven install".
+or (eclipse with maven support http://www.eclipse.org/m2e/) select pom.xml and "Run As" "maven clean" and then "Run As" "maven install".
 
 Note: To ease the build process MQTTWS comes with prebuild jars of mqtt-websocket-java and org.eclipse.paho.client.mqttv3-1. Both of them can be rebuilt by rebuilding project https://github.com/inventit/mqtt-websocket-java. 
 
