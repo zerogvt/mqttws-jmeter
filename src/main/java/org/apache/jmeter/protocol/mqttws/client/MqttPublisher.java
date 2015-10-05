@@ -16,8 +16,6 @@
  specific language governing permissions and limitations
  under the License. 
 
-  Copyright 2014 University Joseph Fourier, LIG Laboratory, ERODS Team
-
 */
 
 package org.apache.jmeter.protocol.mqttws.client;

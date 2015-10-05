@@ -16,8 +16,6 @@
  specific language governing permissions and limitations
  under the License. 
 
-  Copyright 2014 University Joseph Fourier, LIG Laboratory, ERODS Team
-
 -->
 <project
 		xmlns="http://maven.apache.org/POM/4.0.0" 
@@ -28,6 +26,7 @@
 
 	<groupId>winglet.jmeter.mqttws</groupId>
 	<artifactId>mqttws-jmeter</artifactId>
+	<packaging>jar</packaging>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Apache JMeter :: MQTT WS Sampler</name>
 	<description>MQTT Sampler with WebSockets support for Apache JMeter </description>
@@ -38,11 +37,18 @@
 
 
    <repositories>
+   
+   <repository>
+        <id>Eclipse Paho Repo</id>
+        <url>https://repo.eclipse.org/content/repositories/paho-snapshots/</url>
+    </repository>
+ <!--    
  <repository>
       <id>org.eclipse.paho</id>
       <name>paho repo</name>
       <url>https://repo.eclipse.org/content/groups/paho/</url>
     </repository>
+-->
     </repositories>
     
     
@@ -62,11 +68,13 @@
 		</dependency>
 
 
-		<dependency>
-			<groupId>org.eclipse.paho</groupId>
-			<artifactId>mqtt-client</artifactId>
-			<version>0.4.0</version>
-		</dependency>
+	<dependency>
+        <groupId>org.eclipse.paho</groupId>
+        <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+        <version>1.0.3-SNAPSHOT</version>
+    </dependency>
+		
+		
 	</dependencies>
    
 
@@ -80,6 +88,19 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.5.1</version>
 				<configuration>
+				<!--  exclude manifest signature files (to avoid:
+				"Invalid signature file digest for Manifest main attributes" error -->
+				<filters>
+			        <filter>
+			            <artifact>*:*</artifact>
+			            <excludes>
+			                <exclude>META-INF/*.SF</exclude>
+			                <exclude>META-INF/*.DSA</exclude>
+			                <exclude>META-INF/*.RSA</exclude>
+			            </excludes>
+			        </filter>
+			    </filters>
+				
 					<source>1.6</source>
 					<target>1.6</target>
 				</configuration>
