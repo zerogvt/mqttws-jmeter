@@ -172,6 +172,8 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 		if (!client.isConnected() ) {
 			System.out.println(myname + " >>>> Client is not connected - Returning false");
 			result.setSuccessful(false);
+			result.setResponseMessage("Cannot connect to broker");
+			result.setResponseCode("FAILED");
 			return result;
 		}
 		result.sampleStart(); // start stopwatch

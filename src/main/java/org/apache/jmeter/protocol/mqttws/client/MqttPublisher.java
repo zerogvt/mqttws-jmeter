@@ -139,6 +139,8 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 		if (!client.isConnected() ) {
 			System.out.println(myname + " >>>> Client is not connected - Aborting test");
 			result.setSuccessful(false);
+			result.setResponseMessage("Cannot connect to broker");
+			result.setResponseCode("FAILED");
 			return result;
 		}
 		result.sampleStart(); // start stopwatch
@@ -185,14 +187,10 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 
 	@Override
 	public void deliveryComplete(IMqttDeliveryToken arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void messageArrived(String str, MqttMessage msg) throws Exception {
-		System.out.println("got message: " + new String(msg.getPayload()));
-		// TODO Auto-generated method stub
 		
 	}
 	
