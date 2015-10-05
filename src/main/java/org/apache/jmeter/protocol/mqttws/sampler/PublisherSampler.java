@@ -38,7 +38,7 @@ public class PublisherSampler extends BaseMQTTSampler implements ThreadListener,
 
 	private static final long serialVersionUID = 233L;
 	private static final Logger log = LoggingManager.getLoggerForClass();
-	private static final String TEXT_MSG = "mqtt.text_message"; //$NON-NLS-1$
+	//private static final String TEXT_MSG = "mqtt.text_message"; //$NON-NLS-1$
 	private static final String CONFIG_CHOICE = "mqtt.config_choice"; //$NON-NLS-1$
 	private static final String MESSAGE_CHOICE = "mqtt.config_msg_type"; //$NON-NLS-1$
 	private static final String QUALITY = "mqtt.quality"; //$NON-NLS-1$
@@ -238,9 +238,10 @@ public class PublisherSampler extends BaseMQTTSampler implements ThreadListener,
 		return getPropertyAsString(TYPE_FIXED_VALUE);
 
 	}
-	public void setTextMessage(String message) {
+/*	public void setTextMessage(String message) {
 		setProperty(TEXT_MSG, message);
 	}
+*/
 	public void setConfigChoice(String choice) {
 		setProperty(CONFIG_CHOICE, choice);
 
@@ -250,11 +251,11 @@ public class PublisherSampler extends BaseMQTTSampler implements ThreadListener,
 		setProperty(MESSAGE_CHOICE, choice);
 
 	}
-
+/*
 	public String getTextMessage() {
 		return getPropertyAsString(TEXT_MSG);
 	}
-
+*/
 	/**
 	 * To get the message choice
 	 * 
@@ -401,7 +402,10 @@ public class PublisherSampler extends BaseMQTTSampler implements ThreadListener,
 			parameters.addArgument("NUMBER_SEQUENCE", "FALSE");
 
 		// ---------------------Message Choice----------------------------//
-
+		parameters.addArgument("MESSAGE", getTextMessage());
+		parameters.addArgument("TYPE_MESSAGE", "TEXT");
+		parameters.addArgument("TYPE_VALUE", "TEXT");
+		/*
 		if (this.getMessageChoice().equals(MQTTPublisherGui.TEXT_MSG_RSC)) {
 
 			parameters.addArgument("MESSAGE", getTextMessage());
@@ -424,7 +428,7 @@ public class PublisherSampler extends BaseMQTTSampler implements ThreadListener,
 			parameters.addArgument("TYPE_MESSAGE", "BYTE_ARRAY");
 			parameters.addArgument("SIZE_ARRAY", this.getSIZE_ARRAY());
 		}
-
+*/
 		// -----------------------User/Password-------------------------------//
 
 		if (this.isUseAuth()) {

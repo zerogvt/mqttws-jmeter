@@ -35,6 +35,7 @@ public abstract class BaseMQTTSampler extends AbstractSampler {
     private static final String ITERATIONS = "mqtt.iterations"; // $NON-NLS-1$
     private static final String USE_AUTH = "mqtt.authenticate"; // $NON-NLS-1$
     private static final String REQUIRED = JMeterUtils.getResString("mqtt_auth_required"); // $NON-NLS-1$
+    private static final String TEXT_MSG = "mqtt.text_message"; //$NON-NLS-1$
  
    
     /**
@@ -57,6 +58,15 @@ public abstract class BaseMQTTSampler extends AbstractSampler {
      */
     public void setProviderUrl(String url) {
         setProperty(PROVIDER_URL, url);
+    }
+    
+    
+    public void setTextMessage(String msg) {
+    	setProperty(TEXT_MSG, msg);
+    }
+    
+    public String getTextMessage() {
+        return getPropertyAsString(TEXT_MSG);
     }
     
     /**

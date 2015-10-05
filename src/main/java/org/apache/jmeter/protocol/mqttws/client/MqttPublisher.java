@@ -108,10 +108,10 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 		try {
 			client.connect(options);
 			int i=0;
-			if (!client.isConnected() && (i<5) ) {
+			if (!client.isConnected() && (i<10) ) {
 				try {
 					i++;
-					Thread.sleep(2000);
+					Thread.sleep(1000);
 					System.out.println(".");
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
@@ -300,7 +300,7 @@ private void produce(JavaSamplerContext context) throws Exception {
 					byte[] payload = createPayload(message, useTimeStamp, useNumberSeq, type_value,format, charset);
 					//if (quality!=0) {
 					if (throttle) {
-						Thread.sleep(100);
+						Thread.sleep(1000);
 					}
 					this.client.publish(topic,payload,quality,retained);
 					System.out.print("*");

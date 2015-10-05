@@ -109,6 +109,7 @@ public class MQTTPublisherGui extends AbstractSamplerGui implements
 	private final JLabeledTextField mqttUser = new JLabeledTextField(JMeterUtils.getResString("mqtt_user")); //$NON-NLS-1$
 	private final JLabeledTextField mqttPwd = new JLabeledPasswordField(JMeterUtils.getResString("mqtt_pwd")); //$NON-NLS-1$
 	private final JLabeledTextField iterations = new JLabeledTextField(	JMeterUtils.getResString("mqtt_itertions")); //$NON-NLS-1$
+	//private final JSyntaxTextArea textMessage = new JSyntaxTextArea(10, 50); // $NON-NLS-1$
 	private final JSyntaxTextArea textMessage = new JSyntaxTextArea(10, 50); // $NON-NLS-1$
 	private final JLabeledRadioI18N msgChoice = new JLabeledRadioI18N("mqtt_message_type", MSGTYPES_ITEMS, TEXT_MSG_RSC); //$NON-NLS-1$
 	private final JLabeledRadioI18N msgFormat = new JLabeledRadioI18N("mqtt_message_format", MSGFORMAT_ITEMS,NO_ENCODING); //$NON-NLS-1$
@@ -181,7 +182,7 @@ public class MQTTPublisherGui extends AbstractSamplerGui implements
 		mainPanel.add(StampPanel);		
 //--------------------------------------Message Type-------------------------------------//		
 		JPanel ContentPanel = new VerticalPanel();		
-		msgChoice.setLayout(new BoxLayout(msgChoice, BoxLayout.X_AXIS));
+	/*	msgChoice.setLayout(new BoxLayout(msgChoice, BoxLayout.X_AXIS));
 		ContentPanel.add(msgChoice);
 		ContentPanel.add(sizeArray);
 
@@ -201,11 +202,13 @@ public class MQTTPublisherGui extends AbstractSamplerGui implements
 		GPanel.add(typeRandom);
 		GPanel.add(seed);
 		ContentPanel.add(GPanel);
+		
 //---------------------------------Big Volume ------------------------------------------//
 		
 		ContentPanel.add(sizeArray);
+		
 //-------------------------------------Content Panel -----------------------------------//		
-		 
+*/
 		JPanel messageContentPanel = new JPanel(new BorderLayout());
 		messageContentPanel.add(this.textArea,	BorderLayout.NORTH);
 		messageContentPanel.add(this.textPanel,BorderLayout.CENTER);
@@ -267,7 +270,7 @@ public class MQTTPublisherGui extends AbstractSamplerGui implements
 		mqttDestination.setText(""); // $NON-NLS-1$
 		mqttUser.setText(""); // $NON-NLS-1$
 		mqttPwd.setText(""); // $NON-NLS-1$
-		textMessage.setInitialText(""); // $NON-NLS-1$
+		textMessage.setText(""); // $NON-NLS-1$
 		msgChoice.setText(""); // $NON-NLS-1$
 		updateConfig(USE_TEXT_RSC);
 		msgChoice.setText(TEXT_MSG_RSC);
@@ -327,7 +330,7 @@ public class MQTTPublisherGui extends AbstractSamplerGui implements
 		mqttDestination.setText(sampler.getDestination());
 		mqttUser.setText(sampler.getUsername());
 		mqttPwd.setText(sampler.getPassword());
-		textMessage.setInitialText(sampler.getTextMessage());
+		textMessage.setText(sampler.getTextMessage());
 		textMessage.setCaretPosition(0);
         clientId.setText(sampler.getCLIENT_ID());
         connectionPerTopic.setSelected(sampler.isOneConnectionPerTopic());

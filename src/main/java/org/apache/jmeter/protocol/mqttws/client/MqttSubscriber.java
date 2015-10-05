@@ -126,10 +126,10 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 		try {
 			client.connect(options);
 			int i=0;
-			if (!client.isConnected() && (i<5) ) {
+			if (!client.isConnected() && (i<10) ) {
 				try {
 					i++;
-					Thread.sleep(2000);
+					Thread.sleep(1000);
 					System.out.println(".");
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
