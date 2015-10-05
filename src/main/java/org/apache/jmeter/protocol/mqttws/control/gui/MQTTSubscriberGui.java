@@ -65,8 +65,8 @@ public class MQTTSubscriberGui extends AbstractSamplerGui implements ChangeListe
     private final JLabeledTextField separator =  new JLabeledTextField(JMeterUtils.getResString("mqtt_separator")); //$NON-NLS-1$
     private final JCheckBox suffixClientId = new JCheckBox(JMeterUtils.getResString("mqtt_suffix_client_id"),true); // $NON-NLS-1$
     private final JLabeledTextField suffixLength = new JLabeledTextField(JMeterUtils.getResString("mqtt_suffix_length")); //$NON-NLS-1$
-    private final JCheckBox connectionPerTopic = new JCheckBox(JMeterUtils.getResString("mqtt_connection_per_topic"), false); // $NON-NLS-1$
-    private final JLabeledRadioI18N topicChoice = new JLabeledRadioI18N("mqtt_topic_choice", TOPIC_CHOICES,ROUND_ROBIN); //$NON-NLS-1$
+    //private final JCheckBox connectionPerTopic = new JCheckBox(JMeterUtils.getResString("mqtt_connection_per_topic"), false); // $NON-NLS-1$
+    //private final JLabeledRadioI18N topicChoice = new JLabeledRadioI18N("mqtt_topic_choice", TOPIC_CHOICES,ROUND_ROBIN); //$NON-NLS-1$
     private final JCheckBox stopBetweenSamples = new JCheckBox(JMeterUtils.getResString("mqtt_stop_between_samples"), true); // $NON-NLS-1$
     private final JLabeledTextField clientId = new JLabeledTextField(JMeterUtils.getResString("mqtt_client_id")); //$NON-NLS-1$
     private final JLabeledRadioI18N typeQoSValue = new JLabeledRadioI18N("mqtt_qos", QTYPES_ITEMS,AT_MOST_ONCE); //$NON-NLS-1$
@@ -113,8 +113,8 @@ public class MQTTSubscriberGui extends AbstractSamplerGui implements ChangeListe
         //sampler.setRandomSuffix(this.suffixClientId.isSelected());
         sampler.setRandomSuffix(false);
         sampler.setLength(this.suffixLength.getText());
-        sampler.setOneConnectionPerTopic(this.connectionPerTopic.isSelected());
-        sampler.setSTRATEGY(this.topicChoice.getText());
+        //sampler.setOneConnectionPerTopic(this.connectionPerTopic.isSelected());
+        //sampler.setSTRATEGY(this.topicChoice.getText());
         sampler.setQuality(typeQoSValue.getText());
         sampler.setCLEANSESSION(cleanSession.isSelected());
         
@@ -235,12 +235,12 @@ public class MQTTSubscriberGui extends AbstractSamplerGui implements ChangeListe
 		panel.add(mqttDestination);
 		JPanel TPanel = new JPanel();
 		TPanel.setLayout(new BoxLayout(TPanel,BoxLayout.X_AXIS));		
-		this.connectionPerTopic.setLayout(new BoxLayout(connectionPerTopic,BoxLayout.X_AXIS));
-		this.connectionPerTopic.setAlignmentX(CENTER_ALIGNMENT);
-		TPanel.add(connectionPerTopic);
+	//	this.connectionPerTopic.setLayout(new BoxLayout(connectionPerTopic,BoxLayout.X_AXIS));
+	//	this.connectionPerTopic.setAlignmentX(CENTER_ALIGNMENT);
+	//	TPanel.add(connectionPerTopic);
 		TPanel.add(Box.createHorizontalStrut(100));
-		this.topicChoice.setLayout(new BoxLayout(topicChoice,BoxLayout.X_AXIS));
-		TPanel.add(topicChoice);
+	//	this.topicChoice.setLayout(new BoxLayout(topicChoice,BoxLayout.X_AXIS));
+	//	TPanel.add(topicChoice);
 		panel.add(TPanel);
 		return panel;
      }

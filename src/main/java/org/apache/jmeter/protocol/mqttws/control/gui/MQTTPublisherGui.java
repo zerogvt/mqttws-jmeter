@@ -113,8 +113,8 @@ public class MQTTPublisherGui extends AbstractSamplerGui implements
 	private final JSyntaxTextArea textMessage = new JSyntaxTextArea(10, 50); // $NON-NLS-1$
 	private final JLabeledRadioI18N msgChoice = new JLabeledRadioI18N("mqtt_message_type", MSGTYPES_ITEMS, TEXT_MSG_RSC); //$NON-NLS-1$
 	private final JLabeledRadioI18N msgFormat = new JLabeledRadioI18N("mqtt_message_format", MSGFORMAT_ITEMS,NO_ENCODING); //$NON-NLS-1$
-	private final JLabeledRadioI18N topicChoice = new JLabeledRadioI18N("mqtt_topic_choice", TOPIC_CHOICES,ROUND_ROBIN); //$NON-NLS-1$
-	private final JCheckBox connectionPerTopic = new JCheckBox(JMeterUtils.getResString("mqtt_connection_per_topic"), false); // $NON-NLS-1$
+	//private final JLabeledRadioI18N topicChoice = new JLabeledRadioI18N("mqtt_topic_choice", TOPIC_CHOICES,ROUND_ROBIN); //$NON-NLS-1$
+	//private final JCheckBox connectionPerTopic = new JCheckBox(JMeterUtils.getResString("mqtt_connection_per_topic"), false); // $NON-NLS-1$
 	private final JCheckBox suffixClientId = new JCheckBox(JMeterUtils.getResString("mqtt_suffix_client_id"),true); // $NON-NLS-1$
 	private final JLabeledTextField suffixLength = new JLabeledTextField(JMeterUtils.getResString("mqtt_suffix_length")); //$NON-NLS-1$
 	// For messages content
@@ -132,7 +132,7 @@ public class MQTTPublisherGui extends AbstractSamplerGui implements
 	private final JLabel textArea = new JLabel(JMeterUtils.getResString("mqtt_text_area"));
 	private final JTextScrollPane textPanel = new JTextScrollPane(textMessage);
 	private final JLabeledTextField clientId = new JLabeledTextField(JMeterUtils.getResString("mqtt_client_id")); //$NON-NLS-1$
-	private  JComboBox<String> CharsetChooser =new JComboBox<String>(new String[] { "UTF-8", "UTF-16", "US-ASCII","UTF-16BE","UTF-16LE","ISO-8859-1"});
+	//private  JComboBox<String> CharsetChooser =new JComboBox<String>(new String[] { "UTF-8", "UTF-16", "US-ASCII","UTF-16BE","UTF-16LE","ISO-8859-1"});
 	private final JLabeledTextField sizeArray = new JLabeledTextField(JMeterUtils.getResString("mqtt_size_array")); //$NON-NLS-1$
 	public MQTTPublisherGui() {
 		init();
@@ -167,11 +167,11 @@ public class MQTTPublisherGui extends AbstractSamplerGui implements
 		Dimension prefSize = new Dimension(10, 15);
 		Dimension maxSize = new Dimension(Short.MAX_VALUE, 100);
 		FormatPanel.add(new Box.Filler(minSize, prefSize, maxSize));
-		FormatPanel.add(CharsetChooser);
-		JPanel EncodePanel = new VerticalPanel();
-		EncodePanel.add(FormatPanel);
-		EncodePanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.gray),"Encoding"));
-		mainPanel.add(EncodePanel);		
+		//FormatPanel.add(CharsetChooser);
+		//JPanel EncodePanel = new VerticalPanel();
+		//EncodePanel.add(FormatPanel);
+		//EncodePanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.gray),"Encoding"));
+		//mainPanel.add(EncodePanel);		
 		JPanel StampPanel = new VerticalPanel();
 		StampPanel.add(useTimeStamp);
 		StampPanel.add(useNumberSeq);
@@ -250,12 +250,12 @@ public class MQTTPublisherGui extends AbstractSamplerGui implements
 		panel.add(mqttDestination);
 		JPanel TPanel = new JPanel();
 		TPanel.setLayout(new BoxLayout(TPanel,BoxLayout.X_AXIS));		
-		this.connectionPerTopic.setLayout(new BoxLayout(connectionPerTopic,BoxLayout.X_AXIS));
-		this.connectionPerTopic.setAlignmentX(CENTER_ALIGNMENT);
-		TPanel.add(connectionPerTopic);
+		//this.connectionPerTopic.setLayout(new BoxLayout(connectionPerTopic,BoxLayout.X_AXIS));
+		//this.connectionPerTopic.setAlignmentX(CENTER_ALIGNMENT);
+		//TPanel.add(connectionPerTopic);
 		TPanel.add(Box.createHorizontalStrut(100));
-		this.topicChoice.setLayout(new BoxLayout(topicChoice,BoxLayout.X_AXIS));
-		TPanel.add(topicChoice);
+		//this.topicChoice.setLayout(new BoxLayout(topicChoice,BoxLayout.X_AXIS));
+		//TPanel.add(topicChoice);
 		panel.add(TPanel);
 		return panel;
 	}
@@ -281,7 +281,7 @@ public class MQTTPublisherGui extends AbstractSamplerGui implements
 		destSetup.setText(DEST_SETUP_STATIC);
 		textArea.setText("");
 	    clientId.setText("");
-	    connectionPerTopic.setSelected(false);
+	    //connectionPerTopic.setSelected(false);
 	   
 		
 	}
@@ -309,10 +309,10 @@ public class MQTTPublisherGui extends AbstractSamplerGui implements
         sampler.setUSE_NUMBER_SEQUENCE(useNumberSeq.isSelected());
         sampler.setCLIENT_ID(clientId.getText());
         sampler.setFORMAT(msgFormat.getText());
-        sampler.setCHARSET((String) this.CharsetChooser.getSelectedItem());
+        //sampler.setCHARSET((String) this.CharsetChooser.getSelectedItem());
         sampler.setSIZE_ARRAY(this.sizeArray.getText());
-        sampler.setSTRATEGY(this.topicChoice.getText());
-        sampler.setOneConnectionPerTopic(this.connectionPerTopic.isSelected());
+        //sampler.setSTRATEGY(this.topicChoice.getText());
+        //sampler.setOneConnectionPerTopic(this.connectionPerTopic.isSelected());
         //we might need this in future
         //sampler.setRandomSuffix(this.suffixClientId.isSelected());
         sampler.setRandomSuffix(false);
@@ -333,7 +333,7 @@ public class MQTTPublisherGui extends AbstractSamplerGui implements
 		textMessage.setText(sampler.getTextMessage());
 		textMessage.setCaretPosition(0);
         clientId.setText(sampler.getCLIENT_ID());
-        connectionPerTopic.setSelected(sampler.isOneConnectionPerTopic());
+        //connectionPerTopic.setSelected(sampler.isOneConnectionPerTopic());
         msgChoice.setText(sampler.getMessageChoice());
         iterations.setText(sampler.getIterations());
         useAuth.setSelected(sampler.isUseAuth());
@@ -451,19 +451,19 @@ public class MQTTPublisherGui extends AbstractSamplerGui implements
 			this.sizeArray.setVisible(true);
 		}
 		else if(BINARY.equals(command)){
-			this.CharsetChooser.setVisible(false);
+			//this.CharsetChooser.setVisible(false);
 		}
 		else if(BINHEX.equals(command)){
-			this.CharsetChooser.setVisible(false);
+			//this.CharsetChooser.setVisible(false);
 		}
 		else if(BASE64.equals(command)){
-			this.CharsetChooser.setVisible(false);
+			//this.CharsetChooser.setVisible(false);
 		}
 		else if(PLAIN_TEXT.equals(command)){			
-			this.CharsetChooser.setVisible(true);			
+			//this.CharsetChooser.setVisible(true);			
 		}
 		else if(NO_ENCODING.equals(command)){
-			this.CharsetChooser.setVisible(false);
+			//this.CharsetChooser.setVisible(false);
 		}
 		else if("suffix=true".equalsIgnoreCase(command)){
 			this.suffixLength.setVisible(true);
