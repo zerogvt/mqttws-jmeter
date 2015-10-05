@@ -88,19 +88,6 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.5.1</version>
 				<configuration>
-				<!--  exclude manifest signature files (to avoid:
-				"Invalid signature file digest for Manifest main attributes" error -->
-				<filters>
-			        <filter>
-			            <artifact>*:*</artifact>
-			            <excludes>
-			                <exclude>META-INF/*.SF</exclude>
-			                <exclude>META-INF/*.DSA</exclude>
-			                <exclude>META-INF/*.RSA</exclude>
-			            </excludes>
-			        </filter>
-			    </filters>
-				
 					<source>1.6</source>
 					<target>1.6</target>
 				</configuration>
@@ -115,6 +102,20 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <configuration>
+			                <!--  exclude manifest signature files (to avoid:
+							"Invalid signature file digest for Manifest main attributes" error -->
+							<filters>
+						        <filter>
+						            <artifact>*:*</artifact>
+						            <excludes>
+						                <exclude>META-INF/*.SF</exclude>
+						                <exclude>META-INF/*.DSA</exclude>
+						                <exclude>META-INF/*.RSA</exclude>
+						            </excludes>
+						        </filter>
+						    </filters>
+			    		</configuration>
                     </execution>
                 </executions>
             </plugin>
