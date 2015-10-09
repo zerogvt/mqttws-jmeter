@@ -240,7 +240,8 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 			}
 			result.setSamplerData("Listened " + nummsgs.get() + " messages" +
 			"\nTopic: " + context.getParameter("TOPIC") + 
-			"\nBroker: " + client.getServerURI());
+			"\nBroker: " + host +
+			"\nMy client ID: " + clientId);
 			
 		} catch (Exception e) {
 			result.sampleEnd(); // stop stopwatch

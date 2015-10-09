@@ -55,6 +55,8 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 	public int quality = 0;
 	private AtomicInteger total = new AtomicInteger(0);
 	String myname = this.getClass().getName();
+	static String host ;
+	static String clientId ;
 	
 
 
@@ -75,8 +77,8 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 	
 	public void delayedSetupTest(JavaSamplerContext context){
 		System.out.println(myname + ">>>> in setupTest");
-		String host = context.getParameter("HOST");
-		String clientId = context.getParameter("CLIENT_ID");
+		host = context.getParameter("HOST");
+		clientId = context.getParameter("CLIENT_ID");
 		if("TRUE".equalsIgnoreCase(context.getParameter("RANDOM_SUFFIX"))){
 			clientId= MqttPublisher.getClientId(clientId,Integer.parseInt(context.getParameter("SUFFIX_LENGTH")));	
 		}
@@ -157,7 +159,8 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 		result.sampleEnd(); 
 		result.setSamplerData("Published " + total.get() + " messages" + 
 				"\nTopic: " + context.getParameter("TOPIC") +
-				"\nBroker: " +  client.getServerURI());
+				"\nBroker: " + host +
+				"\nMy client ID: " + clientId);
 		
 		System.out.println(myname + ">>>> ending runTest");
 		return result;
