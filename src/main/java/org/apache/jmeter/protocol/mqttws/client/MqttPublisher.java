@@ -139,6 +139,7 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 			result.setSuccessful(false);
 			result.setResponseMessage("Cannot connect to broker");
 			result.setResponseCode("FAILED");
+			result.setSamplerData("ERROR: Could not connect to broker: " + client.getServerURI());
 			return result;
 		}
 		result.sampleStart(); // start stopwatch
@@ -154,6 +155,10 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 			result.setResponseOK();
 		}
 		result.sampleEnd(); 
+		result.setSamplerData("Published " + total.get() + " messages" + 
+				"\nTopic: " + context.getParameter("TOPIC") +
+				"\nBroker: " +  client.getServerURI());
+		
 		System.out.println(myname + ">>>> ending runTest");
 		return result;
 	
@@ -265,11 +270,6 @@ private void produce(JavaSamplerContext context) throws Exception {
 		}
 
 	}
-
-
-
-	
-
 
 
 	private void produce(String message, String topic, int aggregate,

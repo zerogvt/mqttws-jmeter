@@ -177,6 +177,7 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 			result.setSuccessful(false);
 			result.setResponseMessage("Cannot connect to broker");
 			result.setResponseCode("FAILED");
+			result.setSamplerData("ERROR: Could not connect to broker: " + client.getServerURI());
 			return result;
 		}
 		result.sampleStart(); // start stopwatch
@@ -200,11 +201,18 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 					e.printStackTrace();
 				}
 			} else {
-				System.out.println("All messages received - ending test");
+				System.out.println("All messages received. Disconnecting client and ending test");
 				break;
 			}
 		};
-		//System.out.println(">>>> Stopping listening. Heard " + nummsgs.get() + " so far");
+		System.out.println("Timeout. Stopping listening. Heard " + nummsgs.get() + " so far.");
+		//test is over - disconnect client
+		try {
+			client.disconnect();
+		} catch (MqttException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		result.sampleEnd(); 
 		try {
 			StringBuilder allmsgs = new StringBuilder();
@@ -230,7 +238,10 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 					result.setResponseOK();
 				}
 			}
-			System.out.println("============>" + allmsgs);
+			result.setSamplerData("Listened " + nummsgs.get() + " messages" +
+			"\nTopic: " + context.getParameter("TOPIC") + 
+			"\nBroker: " + client.getServerURI());
+			
 		} catch (Exception e) {
 			result.sampleEnd(); // stop stopwatch
 			result.setSuccessful(false);
@@ -244,6 +255,7 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 		}
 	
 		System.out.println("ending runTest");
+		
 		return result;
 	}
 
