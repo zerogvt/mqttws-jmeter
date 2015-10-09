@@ -10,7 +10,7 @@ Initially a fork of https://github.com/tuanhiep/mqtt-jmeter.
 # Introduction
 
 The MQTTWS Plugin in Jmeter is used for the injection testing of MQTT brokers. 
-It uses a paho based client (https://github.com/inventit/mqtt-websocket-java) 
+It uses paho client (https://repo.eclipse.org/content/repositories/paho-snapshots/) 
 that supports MQTT over tcp and websockets.
 
 
