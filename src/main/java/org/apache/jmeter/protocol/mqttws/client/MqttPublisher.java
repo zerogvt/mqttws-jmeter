@@ -16,8 +16,6 @@
  specific language governing permissions and limitations
  under the License. 
 
-  Copyright 2014 University Joseph Fourier, LIG Laboratory, ERODS Team
-
 */
 
 package org.apache.jmeter.protocol.mqttws.client;
@@ -47,12 +45,12 @@ import org.apache.commons.codec.binary.Hex;
 
 
 
-
-import io.inventit.dev.mqtt.paho.MqttWebSocketAsyncClient;
+import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
+//import io.inventit.dev.mqtt.paho.MqttWebSocketAsyncClient;
 
 public class MqttPublisher extends AbstractJavaSamplerClient implements Serializable, MqttCallback {
 	private static final long serialVersionUID = 1L;
-	private MqttWebSocketAsyncClient client;
+	private MqttAsyncClient client;
 	public static int numSeq=0;
 	public int quality = 0;
 	private AtomicInteger total = new AtomicInteger(0);
@@ -84,14 +82,14 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 		}
 		try {
 			System.out.println("Host: " + host + "clientID: " + clientId);
-			client = new MqttWebSocketAsyncClient(host, clientId, new MemoryPersistence());
+			client = new MqttAsyncClient(host, clientId, new MemoryPersistence());
 		} catch (MqttException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		
 		MqttConnectOptions options = new MqttConnectOptions();
-		options.setMqttVersion(MqttConnectOptions.MQTT_VERSION_3_1_1);
+		//options.setMqttVersion(MqttConnectOptions.MQTT_VERSION_3_1_1);
 		options.setCleanSession(true);
 		/*String user = context.getParameter("USER"); 
 		String pwd = context.getParameter("PASSWORD");
