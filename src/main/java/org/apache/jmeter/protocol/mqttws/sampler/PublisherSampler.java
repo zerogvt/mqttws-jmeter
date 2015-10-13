@@ -400,17 +400,21 @@ public class PublisherSampler extends BaseMQTTSampler implements ThreadListener,
 			parameters.addArgument("NUMBER_SEQUENCE", "FALSE");
 
 		// ---------------------Message Choice----------------------------//
-		parameters.addArgument("MESSAGE", getTextMessage());
-		parameters.addArgument("TYPE_MESSAGE", "TEXT");
-		parameters.addArgument("TYPE_VALUE", "TEXT");
-		/*
+		//parameters.addArgument("MESSAGE", getTextMessage());
+		//parameters.addArgument("TYPE_MESSAGE", "TEXT");
+		//parameters.addArgument("TYPE_VALUE", "TEXT");
+		
 		if (this.getMessageChoice().equals(MQTTPublisherGui.TEXT_MSG_RSC)) {
-
 			parameters.addArgument("MESSAGE", getTextMessage());
 			parameters.addArgument("TYPE_MESSAGE", "TEXT");
 			parameters.addArgument("TYPE_VALUE", "TEXT");
-		} else if (this.getMessageChoice().equals(MQTTPublisherGui.FIXED_VALUE)) {
-
+		} 
+		else if (this.getMessageChoice().equals(MQTTPublisherGui.TEXT_POOL_RSC)) {
+			parameters.addArgument("MESSAGE", getTextMessage());
+			parameters.addArgument("TYPE_MESSAGE", "TEXT_POOL");
+			parameters.addArgument("TYPE_VALUE", "TEXT_POOL");
+		} 
+		else if (this.getMessageChoice().equals(MQTTPublisherGui.FIXED_VALUE)) {
 			parameters.addArgument("MESSAGE", getFIXED_VALUE());
 			parameters.addArgument("TYPE_MESSAGE", "FIXED");
 			parameters.addArgument("TYPE_VALUE", getTYPE_FIXED_VALUE());
@@ -426,7 +430,7 @@ public class PublisherSampler extends BaseMQTTSampler implements ThreadListener,
 			parameters.addArgument("TYPE_MESSAGE", "BYTE_ARRAY");
 			parameters.addArgument("SIZE_ARRAY", this.getSIZE_ARRAY());
 		}
-*/
+
 		// -----------------------User/Password-------------------------------//
 
 		if (this.isUseAuth()) {

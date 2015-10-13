@@ -253,7 +253,24 @@ private void produce(JavaSamplerContext context) throws Exception {
 					"FALSE",
 					context.getParameter("STRATEGY"),
 					context.getParameter("PER_TOPIC"));
-		} else if("BYTE_ARRAY".equals(context.getParameter("TYPE_MESSAGE"))){
+		} 
+		else if ("TEXT_POOL".equals(context.getParameter("TYPE_MESSAGE"))) {
+			produce(context.getParameter("MESSAGE"),
+					context.getParameter("TOPIC"),
+					Integer.parseInt(context.getParameter("AGGREGATE")),
+					context.getParameter("QOS"),
+					context.getParameter("RETAINED"),
+					context.getParameter("TIME_STAMP"),
+					context.getParameter("NUMBER_SEQUENCE"),					
+					context.getParameter("TYPE_VALUE"),
+					context.getParameter("FORMAT"),
+					context.getParameter("CHARSET"),
+					//context.getParameter("LIST_TOPIC"),
+					"FALSE",
+					context.getParameter("STRATEGY"),
+					context.getParameter("PER_TOPIC"));
+		}
+		else if("BYTE_ARRAY".equals(context.getParameter("TYPE_MESSAGE"))){
 			System.out.println("Byte Array - TODO");
 			/*
 			produceBigVolume(
@@ -351,7 +368,10 @@ private void produce(JavaSamplerContext context) throws Exception {
   			d.write(message.getBytes());  			
   		} else if ("TEXT".equals(type_value)) {
   			d.write(message.getBytes());
-  		}   
+  		} else if ("TEXT_POOL".equals(type_value)) {
+  			String random_message = createRandomMessageFromPool( message );
+			d.write(random_message.getBytes());
+		}
   	      
 // Format: Encoding  	   
   	   if(MQTTPublisherGui.BINARY.equals(format)){
@@ -370,4 +390,21 @@ private void produce(JavaSamplerContext context) throws Exception {
 	}
        
 
+	/**
+	 * 
+	 * @param pool: Space separated words composing a pool of strings.
+	 * @return
+	 */
+	public String createRandomMessageFromPool(String pool) {
+		String[] ArrayPool = pool.split("\\s+");
+		StringBuffer buff = new StringBuffer();
+		Random rand = new Random();
+		int rlength = rand.nextInt( ArrayPool.length ) + 1;
+		for (int i=0; i<rlength; i++) {
+			buff.append(ArrayPool[rand.nextInt(ArrayPool.length)]);
+			buff.append(" ");
+		}
+		return buff.toString();
+	}
+	
 }
