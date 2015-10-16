@@ -224,15 +224,17 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 				result.setResponseMessage("Received " + allmessages.size() + " messages: \n" + allmsgs.toString() );
 				result.setResponseData(allmsgs.toString(),null);
 			} else {
-				result.setResponseMessage("No messages received");
+				result.setResponseMessage("No messages received from broker: " + host);
 				result.setResponseCode("FAILED");
 			}
 			if ( msgs_aggregate != Long.MAX_VALUE) {
 				if ( nummsgs.get() >= msgs_aggregate ) {
 					result.setResponseOK();
 				}
-				else
+				else {
+					result.setResponseMessage("Fewer than anticipated messages received from broker: " + host);
 					result.setResponseCode("FAILED");
+				}
 			} else {
 				if (nummsgs.get()!=0) {
 					result.setResponseOK();
