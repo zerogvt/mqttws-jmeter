@@ -287,5 +287,5 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 		// TODO Auto-generated method stub
 		allmessages.add(new String(msg.getPayload()));
 	}
-	//test
+	
 }

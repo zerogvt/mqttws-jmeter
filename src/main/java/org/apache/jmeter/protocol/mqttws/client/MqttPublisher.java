@@ -59,6 +59,7 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 	String myname = this.getClass().getName();
 	static String host ;
 	static String clientId ;
+	private AtomicInteger numMsgsDelivered = new AtomicInteger(0);
 	
 	private static final Logger log = LoggingManager.getLoggerForClass();
 
@@ -157,7 +158,12 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 		//in future we might add more criteria for this
 		if (client.isConnected() ) {
 			result.setResponseOK();
+			if (quality>0 && numMsgsDelivered.get()!=total.get()) {
+				result.setResponseCode("FAILED");
+				result.setSamplerData("ERROR: Did not get acks for all of my published messages");
+			}
 		}
+		
 		result.sampleEnd(); 
 		result.setSamplerData("Published " + total.get() + " messages" + 
 				"\nTopic: " + context.getParameter("TOPIC") +
@@ -195,11 +201,11 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 
 	@Override
 	public void deliveryComplete(IMqttDeliveryToken arg0) {
+		numMsgsDelivered.incrementAndGet();
 	}
 
 	@Override
 	public void messageArrived(String str, MqttMessage msg) throws Exception {
-		
 	}
 	
 	
@@ -300,11 +306,11 @@ private void produce(JavaSamplerContext context) throws Exception {
 		try {
 			// Quality
 			if (MQTTPublisherGui.EXACTLY_ONCE.equals(qos)) {
-				quality = 0;
+				quality = 2;
 			} else if (MQTTPublisherGui.AT_LEAST_ONCE.equals(qos)) {
 				quality = 1;
 			} else if (MQTTPublisherGui.AT_MOST_ONCE.equals(qos)) {
-				quality = 2;
+				quality = 0;
 			}
 			// Retained
 			boolean retained = false;
