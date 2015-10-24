@@ -32,6 +32,8 @@ import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
+import org.apache.jorphan.logging.LoggingManager;
+import org.apache.log.Logger;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
@@ -39,17 +41,16 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 
-//import io.inventit.dev.mqtt.paho.MqttWebSocketAsyncClient;
 
 public class MqttSubscriber extends AbstractJavaSamplerClient implements Serializable, MqttCallback {
 	private static final long serialVersionUID = 1L;
-	//private MqttWebSocketAsyncClient client;
 	private MqttAsyncClient client;
 	private List<String> allmessages =  new ArrayList<String>();
 	private AtomicInteger nummsgs = new AtomicInteger(0);
+	
+	private static final Logger log = LoggingManager.getLoggerForClass();
 	
 	static long msgs_aggregate = Long.MAX_VALUE;
 	static long timeout = 10000;
@@ -76,7 +77,6 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 	}
 	
 	public void delayedSetup(JavaSamplerContext context){
-		//System.out.println(myname + ">>>> in setupTest");
 		host = context.getParameter("HOST");
 		clientId = context.getParameter("CLIENT_ID");
 		
@@ -84,24 +84,12 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 			clientId= MqttPublisher.getClientId(clientId,Integer.parseInt(context.getParameter("SUFFIX_LENGTH")));	
 		}
 		try {
-			System.out.println("Host: " + host + "clientID: " + clientId);
-			//client = new MqttWebSocketAsyncClient(host, clientId, new MemoryPersistence());
+			log.debug(myname + ": Host: " + host + "clientID: " + clientId);
 			client = new MqttAsyncClient(host, clientId, new MemoryPersistence());
-			//client = new MqttClient(host, clientId, new MemoryPersistence());
 		} catch (MqttException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		/*
-		//wait out for messages till TIMEOUT expires or aggregate msgs count if set 
-		if (!context.getParameter("AGGREGATE").trim().equals("")) {
-			try {
-				msgs_aggregate = Long.parseLong(context.getParameter("AGGREGATE"));
-			} catch (NumberFormatException e) {
-				msgs_aggregate = Long.MAX_VALUE;
-			}
-		}
-		*/
 		if ( !context.getParameter("AGGREGATE").equals("")) {
 			msgs_aggregate = Long.parseLong(context.getParameter("AGGREGATE"));	
 		}
@@ -109,7 +97,7 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 			timeout = Long.parseLong(context.getParameter("TIMEOUT"));
 		}
 		
-		System.out.println("nummsgs: " + msgs_aggregate + " - timeout: " + timeout);
+		//System.out.println("nummsgs: " + msgs_aggregate + " - timeout: " + timeout);
 		
 		MqttConnectOptions options = new MqttConnectOptions();
 		//options.setMqttVersion(MqttConnectOptions.MQTT_VERSION_3_1_1);
@@ -133,7 +121,7 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 				try {
 					i++;
 					Thread.sleep(1000);
-					System.out.println(".");
+					//System.out.println(".");
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -156,7 +144,7 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 	private class EndTask extends TimerTask  {
 		boolean timeup = false;
 	    public void run()  {
-	      System.out.println("Time's up!");
+	      log.debug(myname + ": Time's up!");
 	      timeup = true;
 	      }
 	    public boolean isTimeUp(){
@@ -167,13 +155,13 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 	@Override
 	public SampleResult runTest(JavaSamplerContext context) {
 		delayedSetup(context);
-		//System.out.println(myname + " >>>> in runtest");
+		log.debug(myname + " >>>> in runtest");
 		SampleResult result = new SampleResult();
 		result.setSampleLabel(context.getParameter("SAMPLER_NAME"));
 		
 		
 		if (!client.isConnected() ) {
-			System.out.println(myname + " >>>> Client is not connected - Returning false");
+			log.error(myname + " >>>> Client is not connected - Returning false");
 			result.setSuccessful(false);
 			result.setResponseMessage("Cannot connect to broker");
 			result.setResponseCode("FAILED");
@@ -182,10 +170,10 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 		}
 		result.sampleStart(); // start stopwatch
 		try {
-			System.out.println("Subscribing to topic: " + context.getParameter("TOPIC"));
+			log.info(myname + ": Subscribing to topic: " + context.getParameter("TOPIC"));
 			client.subscribe(context.getParameter("TOPIC"), 0);
 		} catch (MqttException e) {
-			System.out.println("Client not connected - Aborting test");
+			log.error(myname + ": Client not connected - Aborting test");
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -201,11 +189,11 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 					e.printStackTrace();
 				}
 			} else {
-				System.out.println("All messages received. Disconnecting client and ending test");
+				log.error(myname + ": All messages received. Disconnecting client and ending test");
 				break;
 			}
 		};
-		System.out.println("Timeout. Stopping listening. Heard " + nummsgs.get() + " so far.");
+		log.error(myname + ": Timeout. Stopping listening. Heard " + nummsgs.get() + " so far.");
 		//test is over - disconnect client
 		try {
 			client.disconnect();
@@ -257,7 +245,7 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 			result.setResponseCode("FAILED");
 		}
 	
-		System.out.println("ending runTest");
+		log.debug(myname + " ending runTest");
 		
 		return result;
 	}
@@ -295,7 +283,7 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 	@Override
 	public void messageArrived(String str, MqttMessage msg) throws Exception {
 		nummsgs.incrementAndGet();
-		System.out.println(nummsgs.get() +  " got message: " + new String(msg.getPayload()));
+		log.debug(myname + ": num msgs: " + nummsgs.get() +  ". Got message: " + new String(msg.getPayload()));
 		// TODO Auto-generated method stub
 		allmessages.add(new String(msg.getPayload()));
 	}

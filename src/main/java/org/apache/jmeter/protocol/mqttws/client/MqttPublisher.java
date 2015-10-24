@@ -32,6 +32,8 @@ import org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.protocol.mqttws.control.gui.MQTTPublisherGui;
 import org.apache.jmeter.samplers.SampleResult;
+import org.apache.jorphan.logging.LoggingManager;
+import org.apache.log.Logger;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
@@ -46,7 +48,7 @@ import org.apache.commons.codec.binary.Hex;
 
 
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
-//import io.inventit.dev.mqtt.paho.MqttWebSocketAsyncClient;
+
 
 public class MqttPublisher extends AbstractJavaSamplerClient implements Serializable, MqttCallback {
 	private static final long serialVersionUID = 1L;
@@ -58,7 +60,7 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 	static String host ;
 	static String clientId ;
 	
-
+	private static final Logger log = LoggingManager.getLoggerForClass();
 
 	@Override
 	public Arguments getDefaultParameters() {
@@ -76,14 +78,14 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 	}
 	
 	public void delayedSetupTest(JavaSamplerContext context){
-		System.out.println(myname + ">>>> in setupTest");
+		log.debug(myname + ">>>> in setupTest");
 		host = context.getParameter("HOST");
 		clientId = context.getParameter("CLIENT_ID");
 		if("TRUE".equalsIgnoreCase(context.getParameter("RANDOM_SUFFIX"))){
 			clientId= MqttPublisher.getClientId(clientId,Integer.parseInt(context.getParameter("SUFFIX_LENGTH")));	
 		}
 		try {
-			System.out.println("Host: " + host + "clientID: " + clientId);
+			log.debug("Host: " + host + "clientID: " + clientId);
 			client = new MqttAsyncClient(host, clientId, new MemoryPersistence());
 		} catch (MqttException e1) {
 			// TODO Auto-generated catch block
@@ -112,7 +114,7 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 				try {
 					i++;
 					Thread.sleep(1000);
-					System.out.println(".");
+					//System.out.println(".");
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -137,7 +139,7 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 		result.setSampleLabel(context.getParameter("SAMPLER_NAME"));
 		
 		if (!client.isConnected() ) {
-			System.out.println(myname + " >>>> Client is not connected - Aborting test");
+			log.error(myname + " >>>> Client is not connected - Aborting test");
 			result.setSuccessful(false);
 			result.setResponseMessage("Cannot connect to broker");
 			result.setResponseCode("FAILED");
@@ -162,7 +164,7 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 				"\nBroker: " + host +
 				"\nMy client ID: " + clientId);
 		
-		System.out.println(myname + ">>>> ending runTest");
+		log.info(myname + ">>>> ending runTest");
 		return result;
 	
 	}
@@ -294,7 +296,7 @@ private void produce(JavaSamplerContext context) throws Exception {
 
 	private void produce(String message, String topic, int aggregate,
 			String qos, String isRetained, String useTimeStamp, String useNumberSeq,String type_value, String format, String charset,String isListTopic,String strategy,String isPerTopic) throws Exception {
-		System.out.println(myname + ">>>> Starting publishing: ");
+		log.debug(myname + ">>>> Starting publishing: ");
 		try {
 			// Quality
 			if (MQTTPublisherGui.EXACTLY_ONCE.equals(qos)) {
@@ -319,10 +321,8 @@ private void produce(JavaSamplerContext context) throws Exception {
 						Thread.sleep(1000);
 					}
 					this.client.publish(topic,payload,quality,retained);
-					System.out.print("*");
 					total.incrementAndGet();
 				}
-				System.out.println("");
 			} 						
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -389,7 +389,6 @@ private void produce(JavaSamplerContext context) throws Exception {
   	   } else return b.toByteArray();
 	}
        
-
 	/**
 	 * 
 	 * @param pool: Space separated words composing a pool of strings.

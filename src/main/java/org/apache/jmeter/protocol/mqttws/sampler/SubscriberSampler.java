@@ -153,9 +153,6 @@ public class SubscriberSampler extends BaseMQTTSampler implements
 
 	@Override
 	public boolean interrupt() {
-		
-		System.out.println("Hello interrupt");
-		//System.out.println("Received " + ListenerforSubscribe.count.get() +" messages");
 		log.debug("Thread ended " + new Date());
 		if (this.subscriber != null) {
 			try {
@@ -173,7 +170,6 @@ public class SubscriberSampler extends BaseMQTTSampler implements
 	@Override
 	public void testEnded() {
 		log.debug("Thread ended " + new Date());
-		//System.out.println("Received " + ListenerforSubscribe.count.get() +" messages");
 		if (this.subscriber != null) {
 			try {
 				this.subscriber.close(context);
