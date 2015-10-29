@@ -163,7 +163,7 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 		if (!client.isConnected() ) {
 			log.error(myname + " >>>> Client is not connected - Returning false");
 			result.setSuccessful(false);
-			result.setResponseMessage("Cannot connect to broker");
+			result.setResponseMessage("Cannot connect to broker: " + client.getServerURI());
 			result.setResponseCode("FAILED");
 			result.setSamplerData("ERROR: Could not connect to broker: " + client.getServerURI());
 			return result;
@@ -189,11 +189,11 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 					e.printStackTrace();
 				}
 			} else {
-				log.error(myname + ": All messages received. Disconnecting client and ending test");
+				log.info(myname + ": All messages received. Disconnecting client and ending test");
 				break;
 			}
 		};
-		log.error(myname + ": Timeout. Stopping listening. Heard " + nummsgs.get() + " so far.");
+		log.info(myname + ": Timeout. Stopping listening. Heard " + nummsgs.get() + " so far.");
 		//test is over - disconnect client
 		try {
 			client.disconnect();

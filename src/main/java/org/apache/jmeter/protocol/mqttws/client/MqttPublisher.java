@@ -142,7 +142,7 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 		if (!client.isConnected() ) {
 			log.error(myname + " >>>> Client is not connected - Aborting test");
 			result.setSuccessful(false);
-			result.setResponseMessage("Cannot connect to broker");
+			result.setResponseMessage("Cannot connect to broker: "+ client.getServerURI() );
 			result.setResponseCode("FAILED");
 			result.setSamplerData("ERROR: Could not connect to broker: " + client.getServerURI());
 			return result;
