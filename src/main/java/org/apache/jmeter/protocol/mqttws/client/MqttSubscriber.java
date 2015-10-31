@@ -35,6 +35,7 @@ import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jorphan.logging.LoggingManager;
 import org.apache.log.Logger;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -112,19 +113,8 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 		*/
 		//TODO more options here
 		try {
-			client.connect(options);
-			int i=0;
-			if (!client.isConnected() && (i<10) ) {
-				try {
-					i++;
-					Thread.sleep(1000);
-					//System.out.println(".");
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			
+			IMqttToken token = client.connect(options);
+			token.waitForCompletion(10*1000);
 		} catch (MqttSecurityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
