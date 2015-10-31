@@ -56,11 +56,12 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 	public static int numSeq=0;
 	public int quality = 0;
 	private AtomicInteger total = new AtomicInteger(0);
-	String myname = this.getClass().getName();
-	static String host ;
-	static String clientId ;
+	private String myname = this.getClass().getName();
+	private String host ;
+	private String clientId ;
 	private AtomicInteger numMsgsDelivered = new AtomicInteger(0);
 	
+	//common amongst objects
 	private static final Logger log = LoggingManager.getLoggerForClass();
 
 	@Override

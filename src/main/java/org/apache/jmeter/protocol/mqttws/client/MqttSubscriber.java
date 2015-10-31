@@ -49,17 +49,14 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 	private MqttAsyncClient client;
 	private List<String> allmessages =  new ArrayList<String>();
 	private AtomicInteger nummsgs = new AtomicInteger(0);
+	private long msgs_aggregate = Long.MAX_VALUE;
+	private long timeout = 10000;
+	private String host ;
+	private String clientId ;
+	private String myname = this.getClass().getName();
 	
+	//common amongst objects
 	private static final Logger log = LoggingManager.getLoggerForClass();
-	
-	static long msgs_aggregate = Long.MAX_VALUE;
-	static long timeout = 10000;
-	
-	static String host ;
-	static String clientId ;
-	
-	String myname = this.getClass().getName();
-
 
 	@Override
 	public Arguments getDefaultParameters() {
