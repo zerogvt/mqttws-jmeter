@@ -71,6 +71,7 @@ public class MQTTSubscriberGui extends AbstractSamplerGui implements ChangeListe
     private final JLabeledRadioI18N typeQoSValue = new JLabeledRadioI18N("mqtt_qos", QTYPES_ITEMS,AT_MOST_ONCE); //$NON-NLS-1$
     private final JCheckBox cleanSession = new JCheckBox(JMeterUtils.getResString("mqtt_clean_session"), false); // $NON-NLS-1$
     private final JLabeledTextField iterations = new JLabeledTextField(	JMeterUtils.getResString("mqtt_itertions")); //$NON-NLS-1$
+    private final JLabeledTextField connectionTimeout = new JLabeledTextField(	JMeterUtils.getResString("mqtt_connection_timeout")); //$NON-NLS-1$
     
     public MQTTSubscriberGui() {
         init();
@@ -107,6 +108,7 @@ public class MQTTSubscriberGui extends AbstractSamplerGui implements ChangeListe
         sampler.setPassword(mqttPwd.getText());
         sampler.setUseAuth(useAuth.isSelected());
         sampler.setTimeout(timeout.getText());
+        sampler.setConnectionTimeout(connectionTimeout.getText());
         sampler.setIterations(iterations.getText());
         //we might need this in future - for now it's causing problems
         //sampler.setRandomSuffix(this.suffixClientId.isSelected());
@@ -136,6 +138,7 @@ public class MQTTSubscriberGui extends AbstractSamplerGui implements ChangeListe
 		ControlPanel.add(createDestinationPane());
 		ControlPanel.add(cleanSession);
 		ControlPanel.add(createAuthPane());
+		ControlPanel.add(connectionTimeout);
 		ControlPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.gray),"Connection Info"));
 		mainPanel.add(ControlPanel);	
 		JPanel TPanel = new VerticalPanel();
@@ -196,6 +199,7 @@ public class MQTTSubscriberGui extends AbstractSamplerGui implements ChangeListe
         timeout.setText(""); // $NON-NLS-1$
         iterations.setText("1");// $NON-NLS-1$
         separator.setText(""); // $NON-NLS-1$
+        connectionTimeout.setText("5000"); // $NON-NLS-1$
         useAuth.setSelected(false);
         mqttUser.setEnabled(false);
         mqttPwd.setEnabled(false);

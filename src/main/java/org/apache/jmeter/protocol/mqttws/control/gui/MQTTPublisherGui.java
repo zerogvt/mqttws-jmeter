@@ -111,6 +111,7 @@ public class MQTTPublisherGui extends AbstractSamplerGui implements
 	private final JLabeledTextField mqttUser = new JLabeledTextField(JMeterUtils.getResString("mqtt_user")); //$NON-NLS-1$
 	private final JLabeledTextField mqttPwd = new JLabeledPasswordField(JMeterUtils.getResString("mqtt_pwd")); //$NON-NLS-1$
 	private final JLabeledTextField iterations = new JLabeledTextField(	JMeterUtils.getResString("mqtt_itertions")); //$NON-NLS-1$
+	private final JLabeledTextField connectionTimeout = new JLabeledTextField(	JMeterUtils.getResString("mqtt_connection_timeout")); //$NON-NLS-1$
 	//private final JSyntaxTextArea textMessage = new JSyntaxTextArea(10, 50); // $NON-NLS-1$
 	private final JSyntaxTextArea textMessage = new JSyntaxTextArea(10, 50); // $NON-NLS-1$
 	private final JLabeledRadioI18N msgChoice = new JLabeledRadioI18N("mqtt_message_type", MSGTYPES_ITEMS, TEXT_MSG_RSC); //$NON-NLS-1$
@@ -158,6 +159,7 @@ public class MQTTPublisherGui extends AbstractSamplerGui implements
 		ControlPanel.add(createDestinationPane());
 		ControlPanel.add(createAuthPane());
 		ControlPanel.add(iterations);
+		ControlPanel.add(connectionTimeout);
 		ControlPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.gray),"Connection Info"));
 		mainPanel.add(ControlPanel);		
 //---------------------------------------Message Format----------------------------------//
@@ -277,6 +279,7 @@ public class MQTTPublisherGui extends AbstractSamplerGui implements
 		updateConfig(USE_TEXT_RSC);
 		msgChoice.setText(TEXT_MSG_RSC);
 		iterations.setText("1"); // $NON-NLS-1$
+		connectionTimeout.setText("5000"); // $NON-NLS-1$
 		useAuth.setSelected(false);
 		mqttUser.setEnabled(false);
 		mqttPwd.setEnabled(false);
@@ -297,6 +300,7 @@ public class MQTTPublisherGui extends AbstractSamplerGui implements
 		sampler.setTextMessage(textMessage.getText());
 		sampler.setMessageChoice(msgChoice.getText());
 		sampler.setIterations(iterations.getText());
+		sampler.setConnectionTimeout(connectionTimeout.getText());
 		sampler.setUseAuth(useAuth.isSelected());
 		sampler.setQuality(typeQoSValue.getText());
         sampler.setRetained(isRetained.isSelected());

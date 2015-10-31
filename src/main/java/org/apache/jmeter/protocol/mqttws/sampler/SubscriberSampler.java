@@ -254,6 +254,7 @@ public class SubscriberSampler extends BaseMQTTSampler implements
 		parameters.addArgument("SAMPLER_NAME", this.getName());
 		parameters.addArgument("HOST", host);
 		parameters.addArgument("CLIENT_ID", clientId);
+		parameters.addArgument("CONNECTION_TIMEOUT", ""+getConnectionTimeout());
 		parameters.addArgument("TOPIC", list_topic);
 		// ------------------------Strategy-----------------------------------//
 		if (MQTTPublisherGui.ROUND_ROBIN.equals(this.getSTRATEGY())) {
