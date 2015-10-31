@@ -43,6 +43,9 @@ public class SubscriberSampler extends BaseMQTTSampler implements
 	private static final String DURABLE_SUBSCRIPTION_ID_DEFAULT = "";
 	private static final String CLIENT_ID = "mqtt.clientId"; // $NON-NLS-1$
 	private static final String CLIENT_ID_DEFAULT = ""; // $NON-NLS-1$
+	//Next timeout refers to the sampler as a whole - not to be confused
+	//with the connection timeout which refers to the sampler's 
+	//paho client connection with the broker 
 	private static final String TIMEOUT = "mqtt.timeout"; // $NON-NLS-1$
 	private static final String TIMEOUT_DEFAULT = "30000"; // $NON-NLS-1$
 	private static final String QUALITY = "mqtt.quality"; //$NON-NLS-1$
