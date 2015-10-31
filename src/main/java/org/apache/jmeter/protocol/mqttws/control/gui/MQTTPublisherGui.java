@@ -342,6 +342,7 @@ public class MQTTPublisherGui extends AbstractSamplerGui implements
         //connectionPerTopic.setSelected(sampler.isOneConnectionPerTopic());
         msgChoice.setText(sampler.getMessageChoice());
         iterations.setText(sampler.getIterations());
+        connectionTimeout.setText(""+sampler.getConnectionTimeout());
         useAuth.setSelected(sampler.isUseAuth());
         mqttUser.setEnabled(useAuth.isSelected());
         mqttPwd.setEnabled(useAuth.isSelected());
