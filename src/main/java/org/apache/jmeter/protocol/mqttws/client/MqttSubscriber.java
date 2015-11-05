@@ -101,17 +101,17 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 		//options.setMqttVersion(MqttConnectOptions.MQTT_VERSION_3_1_1);
 		options.setCleanSession(true);
 		int timeout = Integer.parseInt((context.getParameter("CONNECTION_TIMEOUT")));
-		/*String user = context.getParameter("USER"); 
+		String user = context.getParameter("USER"); 
 		String pwd = context.getParameter("PASSWORD");
-		boolean durable = Boolean.parseBoolean(context.getParameter("DURABLE"));
-		options.setCleanSession(!durable);
+		//boolean durable = Boolean.parseBoolean(context.getParameter("DURABLE"));
+		//options.setCleanSession(!durable);
 		if (user != null) {
 			options.setUserName(user);
 			if ( pwd!=null ) {
 				options.setPassword(pwd.toCharArray());
 			}
 		}
-		*/
+		
 		//TODO more options here
 		try {
 			IMqttToken token = client.connect(options);
