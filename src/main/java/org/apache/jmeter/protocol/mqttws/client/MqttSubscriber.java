@@ -158,6 +158,7 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 		}
 		result.sampleStart(); // start stopwatch
 		try {
+			//System.out.println(myname + ": Subscribing to topic: " + context.getParameter("TOPIC"));
 			log.info(myname + ": Subscribing to topic: " + context.getParameter("TOPIC"));
 			client.subscribe(context.getParameter("TOPIC"), 0);
 		} catch (MqttException e) {
@@ -258,7 +259,7 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 
 	@Override
 	public void connectionLost(Throwable arg0) {
-		// TODO Auto-generated method stub
+		log.info("Subscriber client disconnected");
 		
 	}
 
@@ -274,6 +275,7 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 		log.debug(myname + ": num msgs: " + nummsgs.get() +  ". Got message: " + new String(msg.getPayload()));
 		// TODO Auto-generated method stub
 		allmessages.add(new String(msg.getPayload()));
+		
 	}
 	
 }

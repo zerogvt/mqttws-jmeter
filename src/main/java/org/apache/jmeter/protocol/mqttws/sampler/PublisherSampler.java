@@ -368,6 +368,7 @@ public class PublisherSampler extends BaseMQTTSampler implements ThreadListener,
 		// ------------------------ClientId-----------------------------------//
 		parameters.addArgument("CLIENT_ID", getCLIENT_ID());
 		parameters.addArgument("CONNECTION_TIMEOUT", ""+getConnectionTimeout());
+		parameters.addArgument("PUBLISHER_THROTTLE", ""+getPublisherThrottle());
 		parameters.addArgument("TOPIC", list_topic);
 
 		// ------------------------Strategy-----------------------------------//

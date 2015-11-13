@@ -112,6 +112,7 @@ public class MQTTPublisherGui extends AbstractSamplerGui implements
 	private final JLabeledTextField mqttPwd = new JLabeledPasswordField(JMeterUtils.getResString("mqtt_pwd")); //$NON-NLS-1$
 	private final JLabeledTextField iterations = new JLabeledTextField(	JMeterUtils.getResString("mqtt_itertions")); //$NON-NLS-1$
 	private final JLabeledTextField connectionTimeout = new JLabeledTextField(	JMeterUtils.getResString("mqtt_connection_timeout")); //$NON-NLS-1$
+	private final JLabeledTextField publisherThrottle = new JLabeledTextField(	JMeterUtils.getResString("mqtt_publisher_throttle")); //$NON-NLS-1$
 	//private final JSyntaxTextArea textMessage = new JSyntaxTextArea(10, 50); // $NON-NLS-1$
 	private final JSyntaxTextArea textMessage = new JSyntaxTextArea(10, 50); // $NON-NLS-1$
 	private final JLabeledRadioI18N msgChoice = new JLabeledRadioI18N("mqtt_message_type", MSGTYPES_ITEMS, TEXT_MSG_RSC); //$NON-NLS-1$
@@ -160,6 +161,7 @@ public class MQTTPublisherGui extends AbstractSamplerGui implements
 		ControlPanel.add(createAuthPane());
 		ControlPanel.add(iterations);
 		ControlPanel.add(connectionTimeout);
+		ControlPanel.add(publisherThrottle);
 		ControlPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.gray),"Connection Info"));
 		mainPanel.add(ControlPanel);		
 //---------------------------------------Message Format----------------------------------//
@@ -280,6 +282,7 @@ public class MQTTPublisherGui extends AbstractSamplerGui implements
 		msgChoice.setText(TEXT_MSG_RSC);
 		iterations.setText("1"); // $NON-NLS-1$
 		connectionTimeout.setText("5000"); // $NON-NLS-1$
+		publisherThrottle.setText("100"); // $NON-NLS-1$
 		useAuth.setSelected(false);
 		mqttUser.setEnabled(false);
 		mqttPwd.setEnabled(false);
@@ -301,6 +304,7 @@ public class MQTTPublisherGui extends AbstractSamplerGui implements
 		sampler.setMessageChoice(msgChoice.getText());
 		sampler.setIterations(iterations.getText());
 		sampler.setConnectionTimeout(connectionTimeout.getText());
+		sampler.setPublisherThrottle(publisherThrottle.getText());
 		sampler.setUseAuth(useAuth.isSelected());
 		sampler.setQuality(typeQoSValue.getText());
         sampler.setRetained(isRetained.isSelected());
@@ -343,6 +347,7 @@ public class MQTTPublisherGui extends AbstractSamplerGui implements
         msgChoice.setText(sampler.getMessageChoice());
         iterations.setText(sampler.getIterations());
         connectionTimeout.setText(""+sampler.getConnectionTimeout());
+        publisherThrottle.setText(""+sampler.getPublisherThrottle());
         useAuth.setSelected(sampler.isUseAuth());
         mqttUser.setEnabled(useAuth.isSelected());
         mqttPwd.setEnabled(useAuth.isSelected());

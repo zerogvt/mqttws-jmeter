@@ -60,6 +60,8 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 	private String myname = this.getClass().getName();
 	private String host ;
 	private String clientId ;
+	private int throttle=0;
+	
 	private AtomicInteger numMsgsDelivered = new AtomicInteger(0);
 	
 	//common amongst objects
@@ -83,6 +85,7 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 	public void delayedSetupTest(JavaSamplerContext context){
 		log.debug(myname + ">>>> in setupTest");
 		host = context.getParameter("HOST");
+		throttle = Integer.parseInt((context.getParameter("PUBLISHER_THROTTLE")));
 		clientId = context.getParameter("CLIENT_ID");
 		if("TRUE".equalsIgnoreCase(context.getParameter("RANDOM_SUFFIX"))){
 			clientId= MqttPublisher.getClientId(clientId,Integer.parseInt(context.getParameter("SUFFIX_LENGTH")));	
@@ -99,6 +102,7 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 		//options.setMqttVersion(MqttConnectOptions.MQTT_VERSION_3_1_1);
 		options.setCleanSession(true);
 		int timeout = Integer.parseInt((context.getParameter("CONNECTION_TIMEOUT")));
+		
 		String user = context.getParameter("USER"); 
 		String pwd = context.getParameter("PASSWORD");
 		//boolean durable = Boolean.parseBoolean(context.getParameter("DURABLE"));
@@ -188,7 +192,7 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 
 	@Override
 	public void connectionLost(Throwable arg0) {
-		// TODO Auto-generated method stub
+		log.info("Publisher client disconnected");
 		
 	}
 
@@ -207,7 +211,7 @@ private void produce(JavaSamplerContext context) throws Exception {
 		// ---------------------Type of message -------------------//
 
 		if ("FIXED".equals(context.getParameter("TYPE_MESSAGE"))) {
-			System.out.println("Fixed - TODO");
+			log.error("Unimplemented: Fixed - TODO");
 			/*
 			produce(context.getParameter("MESSAGE"),
 					context.getParameter("TOPIC"),
@@ -225,7 +229,7 @@ private void produce(JavaSamplerContext context) throws Exception {
 */
 		} else if ("RANDOM".equals(context.getParameter("TYPE_MESSAGE"))) {
 
-			System.out.println("Randomly - TODO");
+			log.error("Unimplemented: Randomly - TODO");
 			/*produceRandomly(context.getParameter("SEED"),context.getParameter("MIN_RANDOM_VALUE"),
 					context.getParameter("MAX_RANDOM_VALUE"),context.getParameter("TYPE_RANDOM_VALUE"),
 					context.getParameter("TOPIC"),Integer.parseInt(context.getParameter("AGGREGATE")),
@@ -272,7 +276,7 @@ private void produce(JavaSamplerContext context) throws Exception {
 					context.getParameter("PER_TOPIC"));
 		}
 		else if("BYTE_ARRAY".equals(context.getParameter("TYPE_MESSAGE"))){
-			System.out.println("Byte Array - TODO");
+			log.error("Unimplemented: Byte Array - TODO");
 			/*
 			produceBigVolume(
 					context.getParameter("TOPIC"),
@@ -295,7 +299,8 @@ private void produce(JavaSamplerContext context) throws Exception {
 
 	private void produce(String message, String topic, int aggregate,
 			String qos, String isRetained, String useTimeStamp, String useNumberSeq,String type_value, String format, String charset,String isListTopic,String strategy,String isPerTopic) throws Exception {
-		log.debug(myname + ">>>> Starting publishing: ");
+		//System.out.println(myname + ">>>> Starting publishing on topic: " + topic);
+		log.info(myname + ">>>> Starting publishing on topic: " + topic);
 		try {
 			// Quality
 			if (MQTTPublisherGui.EXACTLY_ONCE.equals(qos)) {
@@ -309,16 +314,11 @@ private void produce(JavaSamplerContext context) throws Exception {
 			boolean retained = false;
 			if ("TRUE".equals(isRetained))
 				retained = true;
-			//TODO send next one to GUI
-			boolean throttle = true;
 			// List topic
 			if("FALSE".equals(isListTopic)){		
 				for (int i = 0; i < aggregate; ++i) {
 					byte[] payload = createPayload(message, useTimeStamp, useNumberSeq, type_value,format, charset);
-					//if (quality!=0) {
-					if (throttle) {
-						Thread.sleep(1000);
-					}
+					Thread.sleep(throttle);
 					this.client.publish(topic,payload,quality,retained);
 					total.incrementAndGet();
 				}
