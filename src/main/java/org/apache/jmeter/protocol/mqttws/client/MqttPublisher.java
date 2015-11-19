@@ -117,12 +117,13 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 			}
 		}
 	
-		connect();
+		clientConnect();
 		
 		client.setCallback(this);
 	}
-public boolean haha=false;
-	private boolean connect(){
+
+	private boolean clientConnect(){
+		System.out.println("Publisher connecting.............................");
 		if (client.isConnected()) {
 			return true;
 		}
@@ -162,6 +163,7 @@ public boolean haha=false;
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		//System.out.println("Publisher here: " + quality + " ==== " + numMsgsDelivered.get() + "=====" + total.get() );
 		//this might not make much sense
 		if (quality==0) {
 			if (!client.isConnected()) {
@@ -171,7 +173,8 @@ public boolean haha=false;
 			}
 		}
 		//this does though
-		if ( (quality>0) && (numMsgsDelivered.get()!=total.get()) ) {
+		int numMsgsToSend = Integer.parseInt(context.getParameter("AGGREGATE"));
+		if ( (quality>0) && (numMsgsDelivered.get()!=numMsgsToSend) ) {
 			result.setResponseCode("FAILED");
 			result.setSuccessful(false);
 			result.setSamplerData("ERROR: Did not get acks for all of my published messages");
@@ -180,6 +183,7 @@ public boolean haha=false;
 		
 		result.sampleEnd(); 
 		result.setSamplerData("Published " + total.get() + " messages" + 
+				"\nGot ack for: " + numMsgsDelivered.get() +
 				"\nTopic: " + context.getParameter("TOPIC") +
 				"\nQoS: " + quality +
 				"\nBroker: " + host +
@@ -211,9 +215,10 @@ public boolean haha=false;
 	@Override
 	public void connectionLost(Throwable arg0) {
 		if ( reconnectOnConnLost ) {
+			System.out.println("Publisher client disconnected against its will - will try reconnection");
 			log.info("Publisher client disconnected against its will - will try reconnection");
 			//System.out.println("#################################");
-			connect();
+			clientConnect();
 		}
 	}
 
@@ -340,9 +345,10 @@ private void produce(JavaSamplerContext context) throws Exception {
 				for (int i = 0; i < aggregate; ++i) {
 					byte[] payload = createPayload(message, useTimeStamp, useNumberSeq, type_value,format, charset);
 					Thread.sleep(throttle);
-					if (!client.isConnected()) {
-						connect();
-					}
+					//not needed - handled automatically in connectionLost()
+					//if (!client.isConnected()) {
+					//	clientConnect();
+					//}
 					this.client.publish(topic,payload,quality,retained);
 					total.incrementAndGet();
 				}

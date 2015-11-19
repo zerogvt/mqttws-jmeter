@@ -114,13 +114,14 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 		}
 		//System.out.println("============> " + options.getKeepAliveInterval());
 		
-		connect();
+		clientConnect();
 		
 		client.setCallback(this);
 
 	}
 
-	private boolean connect(){
+	private boolean clientConnect(){
+		System.out.println("Subscriber connecting.............................");
 		if (client.isConnected()) {
 			return true;
 		}
@@ -274,8 +275,9 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 	public void connectionLost(Throwable arg0) {
 		if ( reconnectOnConnLost ) {
 			log.info("Subscriber client disconnected against its will - will try reconnection");
+			System.out.println("Subscriber client disconnected against its will - will try reconnection");
 			//System.out.println("#################################");
-			connect();
+			clientConnect();
 		}
 	}
 
