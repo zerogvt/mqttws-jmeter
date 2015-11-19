@@ -61,6 +61,9 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 	private String host ;
 	private String clientId ;
 	private int throttle=0;
+	private MqttConnectOptions options = new MqttConnectOptions();
+	private int timeout=30000;
+	private boolean reconnectOnConnLost = true;
 	
 	private AtomicInteger numMsgsDelivered = new AtomicInteger(0);
 	
@@ -98,10 +101,10 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 			e1.printStackTrace();
 		}
 		
-		MqttConnectOptions options = new MqttConnectOptions();
 		//options.setMqttVersion(MqttConnectOptions.MQTT_VERSION_3_1_1);
 		options.setCleanSession(true);
-		int timeout = Integer.parseInt((context.getParameter("CONNECTION_TIMEOUT")));
+		options.setKeepAliveInterval(20);
+		timeout = Integer.parseInt((context.getParameter("CONNECTION_TIMEOUT")));
 		
 		String user = context.getParameter("USER"); 
 		String pwd = context.getParameter("PASSWORD");
@@ -113,8 +116,16 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 				options.setPassword(pwd.toCharArray());
 			}
 		}
+	
+		connect();
 		
-		//TODO more options here
+		client.setCallback(this);
+	}
+public boolean haha=false;
+	private boolean connect(){
+		if (client.isConnected()) {
+			return true;
+		}
 		try {
 			IMqttToken token = client.connect(options);
 			token.waitForCompletion(timeout);
@@ -125,21 +136,22 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		client.setCallback(this);
+		return client.isConnected();
 	}
-
+	
 	
 	public SampleResult runTest(JavaSamplerContext context) {
 		delayedSetupTest(context);
 		SampleResult result = new SampleResult();
 		result.setSampleLabel(context.getParameter("SAMPLER_NAME"));
-		int i=0;
+		//be optimistic - will set an error if we find one
+		result.setResponseOK();
 		if (!client.isConnected() ) {
-			log.info(myname + " >>>> Client is not connected - Aborting test");
-			result.setSuccessful(false);
+			
+			System.out.println(myname + " >>>> Client is not connected - Aborting test");
 			result.setResponseMessage("Cannot connect to broker: "+ client.getServerURI() );
 			result.setResponseCode("FAILED");
+			result.setSuccessful(false);
 			result.setSamplerData("ERROR: Could not connect to broker: " + client.getServerURI());
 			return result;
 		}
@@ -150,14 +162,20 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		//consider it a success if client gets connected
-		//in future we might add more criteria for this
-		if (client.isConnected() ) {
-			result.setResponseOK();
-			if (quality>0 && numMsgsDelivered.get()!=total.get()) {
+		//this might not make much sense
+		if (quality==0) {
+			if (!client.isConnected()) {
 				result.setResponseCode("FAILED");
-				result.setSamplerData("ERROR: Did not get acks for all of my published messages");
+				result.setSuccessful(false);
+				result.setSamplerData("ERROR: Disconnected");
 			}
+		}
+		//this does though
+		if ( (quality>0) && (numMsgsDelivered.get()!=total.get()) ) {
+			result.setResponseCode("FAILED");
+			result.setSuccessful(false);
+			result.setSamplerData("ERROR: Did not get acks for all of my published messages");
+			System.out.println(myname + " >>>>ERROR: Did not get acks for all of my published messages");
 		}
 		
 		result.sampleEnd(); 
@@ -192,8 +210,11 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 
 	@Override
 	public void connectionLost(Throwable arg0) {
-		log.info("Publisher client disconnected");
-		
+		if ( reconnectOnConnLost ) {
+			log.info("Publisher client disconnected against its will - will try reconnection");
+			//System.out.println("#################################");
+			connect();
+		}
 	}
 
 	@Override
@@ -319,6 +340,9 @@ private void produce(JavaSamplerContext context) throws Exception {
 				for (int i = 0; i < aggregate; ++i) {
 					byte[] payload = createPayload(message, useTimeStamp, useNumberSeq, type_value,format, charset);
 					Thread.sleep(throttle);
+					if (!client.isConnected()) {
+						connect();
+					}
 					this.client.publish(topic,payload,quality,retained);
 					total.incrementAndGet();
 				}
@@ -327,6 +351,19 @@ private void produce(JavaSamplerContext context) throws Exception {
 			e.printStackTrace();
 			getLogger().warn(e.getLocalizedMessage(), e);
 		}
+		//if we are waiting for acks wait a bit more
+		//TODO - hard coded value - need sth better here
+		if ( quality>0 ) {
+			int maxwait=5;
+			int waited=0;
+			do {
+				Thread.sleep(throttle);
+				waited++;
+			} while ((numMsgsDelivered.get()!=total.get()) && (waited<maxwait) );
+		}
+		reconnectOnConnLost = false;
+		client.disconnect();
+		//client.close();
 	}
 	
 	public byte[] createPayload(String message, String useTimeStamp, String useNumSeq ,String type_value, String format, String charset) throws IOException, NumberFormatException {
