@@ -187,6 +187,7 @@ public class MQTTSubscriberGui extends AbstractSamplerGui implements ChangeListe
         timeout.setText(sampler.getTimeout());  
         iterations.setText(sampler.getIterations());
         connectionTimeout.setText(""+sampler.getConnectionTimeout());
+        typeQoSValue.setText(sampler.getQuality());
     }
 
     @Override

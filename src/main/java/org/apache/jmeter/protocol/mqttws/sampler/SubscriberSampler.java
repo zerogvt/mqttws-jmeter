@@ -92,7 +92,7 @@ public class SubscriberSampler extends BaseMQTTSampler implements
 		setProperty(QUALITY, quality);
 	}
 
-	private String getQuality() {
+	public String getQuality() {
 		return getPropertyAsString(QUALITY);
 	}
 

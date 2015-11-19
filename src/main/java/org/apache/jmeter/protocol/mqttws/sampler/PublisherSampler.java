@@ -42,7 +42,7 @@ public class PublisherSampler extends BaseMQTTSampler implements ThreadListener,
 	private static final String QUALITY = "mqtt.quality"; //$NON-NLS-1$
 	private static final String TYPE_FIXED_VALUE = "mqtt.type_fixed_value"; //$NON-NLS-1$
 	private static String CLIENT_ID = "mqtt.clientid"; //$NON-NLS-1$
-	private static String RETAIN = "mqtt.retain"; //$NON-NLS-1$
+	private static final String RETAIN = "mqtt.retain"; //$NON-NLS-1$
 	private static String USE_TIMESTAMP = "mqtt.use_timestamp"; //$NON-NLS-1$
 	private static String USE_NUMBER_SEQUENCE = "mqtt.use_number_sequence"; //$NON-NLS-1$
 	private static String FIXED_VALUE = "mqtt.fixed_value"; //$NON-NLS-1$
@@ -276,7 +276,7 @@ public class PublisherSampler extends BaseMQTTSampler implements ThreadListener,
 		setProperty(RETAIN,isRetained);
 	}
 
-	public boolean isRetained() {
+	public boolean getRetained() {
 		String isRetain = getPropertyAsString(RETAIN);
 		if("TRUE".equalsIgnoreCase(isRetain)){
 			return true;                   
@@ -382,7 +382,7 @@ public class PublisherSampler extends BaseMQTTSampler implements ThreadListener,
 
 		String quality = getQuality();
 		parameters.addArgument("QOS", quality);
-		if (this.isRetained()) {
+		if (this.getRetained()) {
 			parameters.addArgument("RETAINED", "TRUE");
 		} else {
 			parameters.addArgument("RETAINED", "FALSE");
