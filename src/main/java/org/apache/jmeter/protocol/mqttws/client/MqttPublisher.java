@@ -167,6 +167,7 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 		//this might not make much sense
 		if (quality==0) {
 			if (!client.isConnected()) {
+				result.setResponseMessage("(QoS=0) Cannot connect to broker :" + client.getServerURI());
 				result.setResponseCode("FAILED");
 				result.setSuccessful(false);
 				result.setSamplerData("ERROR: Disconnected");
@@ -175,6 +176,7 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 		//this does though
 		int numMsgsToSend = Integer.parseInt(context.getParameter("AGGREGATE"));
 		if ( (quality>0) && (numMsgsDelivered.get()!=numMsgsToSend) ) {
+			result.setResponseMessage("ERROR: Was expecting "+ numMsgsToSend +" ACKS. Got only " + numMsgsDelivered.get() + "(Broker: " + client.getServerURI());
 			result.setResponseCode("FAILED");
 			result.setSuccessful(false);
 			result.setSamplerData("ERROR: Did not get acks for all of my published messages");
@@ -360,7 +362,7 @@ private void produce(JavaSamplerContext context) throws Exception {
 		//if we are waiting for acks wait a bit more
 		//TODO - hard coded value - need sth better here
 		if ( quality>0 ) {
-			int maxwait=5;
+			int maxwait=10;
 			int waited=0;
 			do {
 				Thread.sleep(throttle);
