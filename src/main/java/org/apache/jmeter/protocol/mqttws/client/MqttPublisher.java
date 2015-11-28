@@ -54,7 +54,7 @@ import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 public class MqttPublisher extends AbstractJavaSamplerClient implements Serializable, MqttCallback {
 	private static final long serialVersionUID = 1L;
 	private MqttAsyncClient client;
-	public static int numSeq=0;
+	public int numSeq=0;
 	public int quality = 0;
 	private AtomicInteger total = new AtomicInteger(0);
 	private String myname = this.getClass().getName();
@@ -123,7 +123,7 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 	}
 
 	private boolean clientConnect(){
-		System.out.println("Publisher connecting.............................");
+		//System.out.println("Publisher connecting.............................");
 		if (client.isConnected()) {
 			return true;
 		}
@@ -176,7 +176,7 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 		//this does though
 		int numMsgsToSend = Integer.parseInt(context.getParameter("AGGREGATE"));
 		if ( (quality>0) && (numMsgsDelivered.get()!=numMsgsToSend) ) {
-			result.setResponseMessage("ERROR: Was expecting "+ numMsgsToSend +" ACKS. Got only " + numMsgsDelivered.get() + "(Broker: " + client.getServerURI());
+			result.setResponseMessage("ERROR: Was expecting "+ numMsgsToSend +" ACKS. Got only " + numMsgsDelivered.get() + " (Broker: " + client.getServerURI() + ")"  );
 			result.setResponseCode("FAILED");
 			result.setSuccessful(false);
 			result.setSamplerData("ERROR: Did not get acks for all of my published messages");
@@ -214,13 +214,16 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 	    return sb.toString();
 	}
 
+	private boolean connecting=false;
 	@Override
 	public void connectionLost(Throwable arg0) {
-		if ( reconnectOnConnLost ) {
-			System.out.println("Publisher client disconnected against its will - will try reconnection");
-			log.info("Publisher client disconnected against its will - will try reconnection");
+		if ( reconnectOnConnLost && !connecting) {
+			connecting=true;
+			System.out.println("WARNING: Publisher client connection was lost. Reason: "+ arg0.getMessage() + ". Will try reconnection.");
+			log.info("WARNING: Publisher client connection was lost. Reason: "+ arg0.getMessage() + ". Will try reconnection.");
 			//System.out.println("#################################");
 			clientConnect();
+			connecting=false;
 		}
 	}
 
@@ -362,7 +365,7 @@ private void produce(JavaSamplerContext context) throws Exception {
 		//if we are waiting for acks wait a bit more
 		//TODO - hard coded value - need sth better here
 		if ( quality>0 ) {
-			int maxwait=10;
+			int maxwait=50;
 			int waited=0;
 			do {
 				Thread.sleep(throttle);
