@@ -33,13 +33,9 @@ https://github.com/winglet/mqttws-jmeter/tree/master/ressource
 
 ##  MQTTWS Publisher
 
-The interface graphic of Jmeter:
-
-![Alt text](images/Main_Interface_Jmeter.png)
-
 Right-click “Thread” and choose : Add → Sampler → MQTT Publisher
 
-![Alt text](images/MQTT_Publisher.png)
+![Alt text](images/mqttws_publisher.png)
 
 In the principal interface of MQTTWS Publisher we have the fields:  
 *Connection Info*  
@@ -55,7 +51,7 @@ password
 **Password:** Your password  
 **Number of samples to aggregate:** In other way, the number of messages you want to publish to
 the MQTT sever in this MQTT Publisher thread, with the value like the configuration below.  
-**Message Type:** You can choose : Text, Generated Value, Fixed Value, Random Byte Array (more detail below)  
+**Message Type:** You can choose : Text, Random Byte Array (more detail below)  
 
 ![Alt text](images/Publisher_Text.png)  
 
@@ -92,7 +88,7 @@ For measuring, thanks to Jmeter, we can add some listeners:
 ## MQTT Subscriber  
  
  
-![Alt text](images/MQTT_Subscriber.png)  
+![Alt text](images/mqttws_subscriber.png)  
  
  
  
