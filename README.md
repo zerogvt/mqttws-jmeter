@@ -14,7 +14,7 @@ It uses paho client (https://repo.eclipse.org/content/repositories/paho-snapshot
 that supports MQTT over tcp, websockets and secure websockets.
 
 
-# How to install MQTT plugin in Jmeter
+# How to install MQTTWS plugin in Jmeter
 
 From the repository: https://github.com/winglet/mqttws-jmeter  
 Get the source code, go to mqttws-jemeter folder and and use the command maven in terminal (Ubuntu):
@@ -33,7 +33,7 @@ https://github.com/winglet/mqttws-jmeter/tree/master/ressource
 
 ##  MQTTWS Publisher
 
-Right-click “Thread” and choose : Add → Sampler → MQTT Publisher
+Right-click "Threads" and choose : Add > Sampler > MQTTWS Publisher
 
 ![Alt text](images/mqttws_publisher.png)
 
@@ -51,6 +51,8 @@ password
 **Password:** Your password  
 **Number of samples to aggregate:** In other way, the number of messages you want to publish to
 the MQTT sever in this MQTT Publisher thread, with the value like the configuration below.  
+**mqtt connection timeout:** The time (msecs) the sampler will wait for a successful connection with the broker.
+**publisher throttle:** The time (msecs) that the publisher will wait amongst two consecutive messages.
 **Message Type:** You can choose : Text, Random Byte Array (more detail below)  
 
 ![Alt text](images/Publisher_Text.png)  
@@ -65,11 +67,14 @@ field in the message is 4 bytes.
 MQTT message is set to false by default. This means that a broker will not hold onto the message 
 so that any subscribers arriving after the message was sent will not see the message. By setting 
 the retain flag, the message is held onto by the broker, so when the late arrivers connect to the 
-broker or clients create a new subscription they get all the relevant retained messages”  
-**Quality of service:** Three levels:  
+broker or clients create a new subscription they get all the relevant retained messages  
+**Quality of service:** Three levels according to MQTT protocol QoS:  
 0 : At most once  
 1 : At least once  
 2 : Exactly once  
+Bear in mind that for QoS 1 and 2 the publisher will report failure if it does not manage getting back ACKs for all its messages.
+
+*Content*
 
 With MQTT Publisher in Jmeter, three type of messages can be sent (Message Type):  
 
@@ -85,9 +90,10 @@ For measuring, thanks to Jmeter, we can add some listeners:
   
 ![Alt text](images/Publisher_result.png)  
 
+
+
 ## MQTT Subscriber  
- 
- 
+
 ![Alt text](images/mqttws_subscriber.png)  
  
  
@@ -98,6 +104,7 @@ For measuring, thanks to Jmeter, we can add some listeners:
 *Client Id:* Your Id in the session  
 *Topic:* The topic you want to subscribe.  
 *Use Authorization :* Necessary in the case the connection need username and password  
+*mqtt connection timeout:* Msecs to wait for a successful connection 
 *User:* your username  
 *Password:* your password  
 *Number of samples to aggregate:* In other way, the number of message you want to receive from
