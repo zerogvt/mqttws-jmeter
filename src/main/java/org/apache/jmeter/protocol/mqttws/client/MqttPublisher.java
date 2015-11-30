@@ -106,7 +106,7 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 		//options.setMqttVersion(MqttConnectOptions.MQTT_VERSION_3_1_1);
 		//options.setCleanSession(false);
 		options.setCleanSession(Boolean.parseBoolean((context.getParameter("CLEAN_SESSION"))));
-		System.out.println("Pubs cleansession ====> " + context.getParameter("CLEAN_SESSION"));
+		//System.out.println("Pubs cleansession ====> " + context.getParameter("CLEAN_SESSION"));
 		options.setKeepAliveInterval(20);
 		timeout = Integer.parseInt((context.getParameter("CONNECTION_TIMEOUT")));
 		
