@@ -23,6 +23,7 @@ package org.apache.jmeter.protocol.mqttws.client;
 import java.io.Serializable;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Timer;
@@ -51,7 +52,8 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 	private List<String> allmessages =  new ArrayList<String>();
 	private AtomicInteger nummsgs = new AtomicInteger(0);
 	private long msgs_aggregate = Long.MAX_VALUE;
-	private long timeout = 30000;
+	private long samplerTimeout = 30000;
+	private long connectionTimeout = 10000;
 	private String host ;
 	private String clientId ;
 	private String myname = this.getClass().getName();
@@ -68,7 +70,7 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 		defaultParameters.addArgument("CLIENT_ID", "${__time(YMDHMS)}${__threadNum}");
 		defaultParameters.addArgument("TOPIC", "TEST.MQTT");
 		defaultParameters.addArgument("AGGREGATE", "100");
-		defaultParameters.addArgument("DURABLE", "false");
+		defaultParameters.addArgument("CLEAN_SESSION", "false");
 		return defaultParameters;
 	}
 
@@ -93,19 +95,18 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 		if ( !context.getParameter("AGGREGATE").equals("")) {
 			msgs_aggregate = Long.parseLong(context.getParameter("AGGREGATE"));	
 		}
-		if ( !context.getParameter("TIMEOUT").equals("") ) {
-			timeout = Long.parseLong(context.getParameter("TIMEOUT"));
+		if ( !context.getParameter("SAMPLER_TIMEOUT").equals("") ) {
+			samplerTimeout = Long.parseLong(context.getParameter("SAMPLER_TIMEOUT"));
 		}
 		
-		//System.out.println("nummsgs: " + msgs_aggregate + " - timeout: " + timeout);
+		//System.out.println("nummsgs: " + msgs_aggregate + " - sampler timeout: " + samplerTimeout);
 		//options.setMqttVersion(MqttConnectOptions.MQTT_VERSION_3_1_1);
-		options.setCleanSession(true);
+		options.setCleanSession(Boolean.parseBoolean((context.getParameter("CLEAN_SESSION"))));
+		System.out.println("Subs clean session====> " + context.getParameter("CLEAN_SESSION"));
 		options.setKeepAliveInterval(20);
-		timeout = Integer.parseInt((context.getParameter("CONNECTION_TIMEOUT")));
+		connectionTimeout = Integer.parseInt((context.getParameter("CONNECTION_TIMEOUT")));
 		String user = context.getParameter("USER"); 
 		String pwd = context.getParameter("PASSWORD");
-		//boolean durable = Boolean.parseBoolean(context.getParameter("DURABLE"));
-		//options.setCleanSession(!durable);
 		if (user != null) {
 			options.setUserName(user);
 			if ( pwd!=null ) {
@@ -127,7 +128,7 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 		}
 		try {
 			IMqttToken token = client.connect(options);
-			token.waitForCompletion(timeout);
+			token.waitForCompletion(connectionTimeout);
 		} catch (MqttSecurityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -141,7 +142,8 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 	private class EndTask extends TimerTask  {
 		boolean timeup = false;
 	    public void run()  {
-	      log.debug(myname + ": Time's up!");
+	    	//log.debug(myname + ": Time's up!");
+	      System.out.println(myname + ": Time's up! " + new Date().toString());
 	      timeup = true;
 	      }
 	    public boolean isTimeUp(){
@@ -167,6 +169,7 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 			return result;
 		}
 		result.sampleStart(); // start stopwatch
+		
 		try {
 			//System.out.println(myname + ": Subscribing to topic: " + context.getParameter("TOPIC"));
 			log.info(myname + ": Subscribing to topic: " + context.getParameter("TOPIC"));
@@ -178,7 +181,8 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 		}
 		EndTask endtask = new EndTask();
 		Timer timer = new Timer();
-		timer.schedule( endtask, timeout);
+		timer.schedule( endtask, samplerTimeout);
+		System.out.println("starting listening: " + new Date().toString() + "(timeout= " + samplerTimeout + ")");
 		while ( !endtask.isTimeUp() ) {
 			if (nummsgs.get()<msgs_aggregate) {
 				try {

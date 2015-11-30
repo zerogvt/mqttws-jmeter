@@ -56,11 +56,12 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 	private MqttAsyncClient client;
 	public int numSeq=0;
 	public int quality = 0;
-	private AtomicInteger total = new AtomicInteger(0);
+	private AtomicInteger numMsgsSent = new AtomicInteger(0);
 	private String myname = this.getClass().getName();
 	private String host ;
 	private String clientId ;
 	private int throttle=0;
+	private int acksTimeout = 5000;
 	private MqttConnectOptions options = new MqttConnectOptions();
 	private int timeout=30000;
 	private boolean reconnectOnConnLost = true;
@@ -76,8 +77,8 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 		defaultParameters.addArgument("HOST", "tcp://localhost:1883");
 		defaultParameters.addArgument("CLIENT_ID", "${__time(YMDHMS)}${__threadNum}");
 		defaultParameters.addArgument("TOPIC", "TEST.MQTT");
-		defaultParameters.addArgument("AGGREGATE", "100");
-		defaultParameters.addArgument("DURABLE", "false");
+		defaultParameters.addArgument("AGGREGATE", "10");
+		defaultParameters.addArgument("CLEAN_SESSION", "false");
 		return defaultParameters;
 	}
 
@@ -89,6 +90,7 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 		log.debug(myname + ">>>> in setupTest");
 		host = context.getParameter("HOST");
 		throttle = Integer.parseInt((context.getParameter("PUBLISHER_THROTTLE")));
+		acksTimeout = Integer.parseInt((context.getParameter("PUBLISHER_ACKS_TIMEOUT"))); 
 		clientId = context.getParameter("CLIENT_ID");
 		if("TRUE".equalsIgnoreCase(context.getParameter("RANDOM_SUFFIX"))){
 			clientId= MqttPublisher.getClientId(clientId,Integer.parseInt(context.getParameter("SUFFIX_LENGTH")));	
@@ -102,14 +104,14 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 		}
 		
 		//options.setMqttVersion(MqttConnectOptions.MQTT_VERSION_3_1_1);
-		options.setCleanSession(true);
+		//options.setCleanSession(false);
+		options.setCleanSession(Boolean.parseBoolean((context.getParameter("CLEAN_SESSION"))));
+		System.out.println("Pubs cleansession ====> " + context.getParameter("CLEAN_SESSION"));
 		options.setKeepAliveInterval(20);
 		timeout = Integer.parseInt((context.getParameter("CONNECTION_TIMEOUT")));
 		
 		String user = context.getParameter("USER"); 
 		String pwd = context.getParameter("PASSWORD");
-		//boolean durable = Boolean.parseBoolean(context.getParameter("DURABLE"));
-		//options.setCleanSession(!durable);
 		if (user != null) {
 			options.setUserName(user);
 			if ( pwd!=null ) {
@@ -163,7 +165,7 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		//System.out.println("Publisher here: " + quality + " ==== " + numMsgsDelivered.get() + "=====" + total.get() );
+		//System.out.println("Publisher here: " + quality + " ==== " + numMsgsDelivered.get() + "=====" + numMsgsSent.get() );
 		//this might not make much sense
 		if (quality==0) {
 			if (!client.isConnected()) {
@@ -184,7 +186,7 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 		}
 		
 		result.sampleEnd(); 
-		result.setSamplerData("Published " + total.get() + " messages" + 
+		result.setSamplerData("Published " + numMsgsSent.get() + " messages" + 
 				"\nGot ack for: " + numMsgsDelivered.get() +
 				"\nTopic: " + context.getParameter("TOPIC") +
 				"\nQoS: " + quality +
@@ -355,22 +357,20 @@ private void produce(JavaSamplerContext context) throws Exception {
 					//	clientConnect();
 					//}
 					this.client.publish(topic,payload,quality,retained);
-					total.incrementAndGet();
+					numMsgsSent.incrementAndGet();
 				}
 			} 						
 		} catch (Exception e) {
 			e.printStackTrace();
 			getLogger().warn(e.getLocalizedMessage(), e);
 		}
-		//if we are waiting for acks wait a bit more
-		//TODO - hard coded value - need sth better here
+		//if we are waiting for acks wait at least acksTimeout msecs more
 		if ( quality>0 ) {
-			int maxwait=50;
 			int waited=0;
 			do {
 				Thread.sleep(throttle);
 				waited++;
-			} while ((numMsgsDelivered.get()!=total.get()) && (waited<maxwait) );
+			} while ((numMsgsDelivered.get()!=numMsgsSent.get()) && (waited*throttle < acksTimeout) );
 		}
 		reconnectOnConnLost = false;
 		client.disconnect();

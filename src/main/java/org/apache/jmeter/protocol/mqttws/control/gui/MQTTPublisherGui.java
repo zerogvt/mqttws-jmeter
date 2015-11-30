@@ -113,6 +113,7 @@ public class MQTTPublisherGui extends AbstractSamplerGui implements
 	private final JLabeledTextField iterations = new JLabeledTextField(	JMeterUtils.getResString("mqtt_itertions")); //$NON-NLS-1$
 	private final JLabeledTextField connectionTimeout = new JLabeledTextField(	JMeterUtils.getResString("mqtt_connection_timeout")); //$NON-NLS-1$
 	private final JLabeledTextField publisherThrottle = new JLabeledTextField(	JMeterUtils.getResString("mqtt_publisher_throttle")); //$NON-NLS-1$
+	private final JLabeledTextField acksTimeout = new JLabeledTextField(	JMeterUtils.getResString("mqtt_acks_timeout")); //$NON-NLS-1$
 	//private final JSyntaxTextArea textMessage = new JSyntaxTextArea(10, 50); // $NON-NLS-1$
 	private final JSyntaxTextArea textMessage = new JSyntaxTextArea(10, 50); // $NON-NLS-1$
 	private final JLabeledRadioI18N msgChoice = new JLabeledRadioI18N("mqtt_message_type", MSGTYPES_ITEMS, TEXT_MSG_RSC); //$NON-NLS-1$
@@ -125,6 +126,7 @@ public class MQTTPublisherGui extends AbstractSamplerGui implements
 	private final JCheckBox useTimeStamp = new JCheckBox(JMeterUtils.getResString("mqtt_use_time_stamp"), false); // $NON-NLS-1$
 	private final JCheckBox useNumberSeq = new JCheckBox(JMeterUtils.getResString("mqtt_use_number_seq"), false); // $NON-NLS-1$
 	private final JCheckBox isRetained = new JCheckBox(JMeterUtils.getResString("mqtt_send_as_retained_msg"), false); // $NON-NLS-1$
+	private final JCheckBox cleanSession = new JCheckBox(JMeterUtils.getResString("mqtt_clean_session"), true); // $NON-NLS-1$
 	private final JLabeledRadioI18N typeQoSValue = new JLabeledRadioI18N("mqtt_qos", QTYPES_ITEMS,AT_MOST_ONCE); //$NON-NLS-1$
 	private final JLabeledRadioI18N typeGeneratedValue = new JLabeledRadioI18N("mqtt_type_of_generated_value", VALTYPES_ITEMS,INT); //$NON-NLS-1$
 	private final JLabeledRadioI18N typeFixedValue = new JLabeledRadioI18N("mqtt_type_of_fixed_value", FVALTYPES_ITEMS,INT); //$NON-NLS-1$
@@ -158,10 +160,12 @@ public class MQTTPublisherGui extends AbstractSamplerGui implements
 		JPanel ControlPanel = new VerticalPanel();
 		ControlPanel.add(DPanel);
 		ControlPanel.add(createDestinationPane());
+		ControlPanel.add(cleanSession);
 		ControlPanel.add(createAuthPane());
 		ControlPanel.add(iterations);
 		ControlPanel.add(connectionTimeout);
 		ControlPanel.add(publisherThrottle);
+		ControlPanel.add(acksTimeout);
 		ControlPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.gray),"Connection Info"));
 		mainPanel.add(ControlPanel);		
 //---------------------------------------Message Format----------------------------------//
@@ -283,6 +287,7 @@ public class MQTTPublisherGui extends AbstractSamplerGui implements
 		iterations.setText("1"); // $NON-NLS-1$
 		connectionTimeout.setText("5000"); // $NON-NLS-1$
 		publisherThrottle.setText("100"); // $NON-NLS-1$
+		acksTimeout.setText("5000"); // $NON-NLS-1$
 		useAuth.setSelected(false);
 		mqttUser.setEnabled(false);
 		mqttPwd.setEnabled(false);
@@ -305,6 +310,7 @@ public class MQTTPublisherGui extends AbstractSamplerGui implements
 		sampler.setIterations(iterations.getText());
 		sampler.setConnectionTimeout(connectionTimeout.getText());
 		sampler.setPublisherThrottle(publisherThrottle.getText());
+		sampler.setPublisherAcksTimeout(acksTimeout.getText());
 		sampler.setUseAuth(useAuth.isSelected());
 		sampler.setQuality(typeQoSValue.getText());
         sampler.setRetained(isRetained.isSelected());
@@ -327,6 +333,7 @@ public class MQTTPublisherGui extends AbstractSamplerGui implements
         //sampler.setRandomSuffix(this.suffixClientId.isSelected());
         sampler.setRandomSuffix(false);
         sampler.setLength(this.suffixLength.getText());
+        sampler.setCLEANSESSION(cleanSession.isSelected());
 	}
 		
 	/**
@@ -350,12 +357,14 @@ public class MQTTPublisherGui extends AbstractSamplerGui implements
         typeQoSValue.setText(sampler.getQuality());
         connectionTimeout.setText(""+sampler.getConnectionTimeout());
         publisherThrottle.setText(""+sampler.getPublisherThrottle());
+        acksTimeout.setText(""+sampler.getPublisherAcksTimeout());
         useAuth.setSelected(sampler.isUseAuth());
         mqttUser.setEnabled(useAuth.isSelected());
         mqttPwd.setEnabled(useAuth.isSelected());
         updateChoice(msgChoice.getText());
         updateChoice(msgFormat.getText());
         updateChoice("Suffix=" + String.valueOf(this.suffixClientId.isSelected()));
+        cleanSession.setSelected(Boolean.parseBoolean(sampler.getCLEANSESSION()));
 	
 	}
 	

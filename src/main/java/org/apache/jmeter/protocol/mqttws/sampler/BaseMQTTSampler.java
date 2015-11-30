@@ -39,6 +39,8 @@ public abstract class BaseMQTTSampler extends AbstractSampler {
 	private static final String CONNECTION_TIMEOUT_DEFAULT = "5000"; // $NON-NLS-1$
 	private static final String PUBLISHER_THROTTLE = "mqtt.publisher_throttle"; // $NON-NLS-1$
 	private static final String PUBLISHER_THROTTLE_DEFAULT = "100"; // $NON-NLS-1$
+	private static final String CLEAN_SESSION="mqtt.clean.session";//$NON-NLS-1$
+	private static final String CLEAN_SESSION_DEFAULT = "false";//$NON-NLS-1$
  
    
     /**
@@ -167,7 +169,7 @@ public abstract class BaseMQTTSampler extends AbstractSampler {
         setProperty(PUBLISHER_THROTTLE, count, PUBLISHER_THROTTLE_DEFAULT);
     }
 
-
+    
     /**
      * get connection timeout as int
      *
@@ -212,6 +214,20 @@ public abstract class BaseMQTTSampler extends AbstractSampler {
         final String useAuth = getPropertyAsString(USE_AUTH);
         return useAuth.equalsIgnoreCase("true") || useAuth.equals(REQUIRED); // $NON-NLS-1$
     }
+    
+    
+    public String getCLEANSESSION() {
+		return getPropertyAsString(CLEAN_SESSION, CLEAN_SESSION_DEFAULT);
+	}
+
+	public void setCLEANSESSION(boolean clean) {		
+		
+		if(clean) {
+			setProperty(CLEAN_SESSION, "true");
+		}
+		else 
+			setProperty(CLEAN_SESSION, "false");
+	}
  
 	
 }

@@ -46,33 +46,22 @@ public class SubscriberSampler extends BaseMQTTSampler implements
 	//Next timeout refers to the sampler as a whole - not to be confused
 	//with the connection timeout which refers to the sampler's 
 	//paho client connection with the broker 
-	private static final String TIMEOUT = "mqtt.timeout"; // $NON-NLS-1$
-	private static final String TIMEOUT_DEFAULT = "30000"; // $NON-NLS-1$
-	private static final String QUALITY = "mqtt.quality"; //$NON-NLS-1$
+	private static final String SAMPLER_TIMEOUT = "mqtt.sampler.timeout"; // $NON-NLS-1$
+	private static final String SAMPLER_TIMEOUT_DEFAULT = "30000"; // $NON-NLS-1$
+	//private static final String QUALITY = "mqtt.quality"; //$NON-NLS-1$
 	private static String OneConnectionPerTopic = "mqtt.one_connection_per_topic"; //$NON-NLS-1$
 	public transient MqttSubscriber subscriber = null;
 	private JavaSamplerContext context = null;
 	private static String Length = "mqtt.suffix.length";//$NON-NLS-1$
 	private static String RandomSuffix = "mqtt.random_suffix_client_id";//$NON-NLS-1$
 	private static String STRATEGY = "mqtt.strategy"; //$NON-NLS-1$
-	private static String CLEAN_SESSION="mqtt.clean.session";//$NON-NLS-1$
+	
 
 	public SubscriberSampler() {
 		super();
 	}
 	
-	public String getCLEANSESSION() {
-		return getPropertyAsString(CLEAN_SESSION);
-	}
-
-	public void setCLEANSESSION(boolean cLEANSESSION) {		
-		
-		if(cLEANSESSION) {
-			setProperty(CLEAN_SESSION, "true");
-		}
-		else 
-			setProperty(CLEAN_SESSION, "false");
-	}
+	
 
 	public void setOneConnectionPerTopic(boolean oneConnectionPerTopic) {
 		setProperty(OneConnectionPerTopic, oneConnectionPerTopic);
@@ -88,13 +77,13 @@ public class SubscriberSampler extends BaseMQTTSampler implements
 
 	}
 
-	public void setQuality(String quality) {
-		setProperty(QUALITY, quality);
-	}
+//	public void setQuality(String quality) {
+//		setProperty(QUALITY, quality);
+//	}
 
-	public String getQuality() {
-		return getPropertyAsString(QUALITY);
-	}
+//	public String getQuality() {
+//		return getPropertyAsString(QUALITY);
+//	}
 
 	public String getSTRATEGY() {
 		return getPropertyAsString(STRATEGY);
@@ -116,8 +105,8 @@ public class SubscriberSampler extends BaseMQTTSampler implements
 
 	}
 
-	public void setTimeout(String timeout) {
-		setProperty(TIMEOUT, timeout, TIMEOUT_DEFAULT);
+	public void setSamplerTimeout(String timeout) {
+		setProperty(SAMPLER_TIMEOUT, timeout, SAMPLER_TIMEOUT_DEFAULT);
 	}
 
 	public String getDurableSubscriptionId() {
@@ -128,8 +117,8 @@ public class SubscriberSampler extends BaseMQTTSampler implements
 		return getPropertyAsString(CLIENT_ID, CLIENT_ID_DEFAULT);
 	}
 
-	public String getTimeout() {
-		return getPropertyAsString(TIMEOUT, TIMEOUT_DEFAULT);
+	public String getSamplerTimeout() {
+		return getPropertyAsString(SAMPLER_TIMEOUT, SAMPLER_TIMEOUT_DEFAULT);
 	}
 
 	public void setRandomSuffix(boolean randomSuffix) {
@@ -252,7 +241,7 @@ public class SubscriberSampler extends BaseMQTTSampler implements
 		String list_topic = getDestination();
 		String aggregate = "" + getIterationCount();
 		String clientId = getClientId();
-		String timeout = this.getTimeout();
+		String samplerTimeout = this.getSamplerTimeout();
 		Arguments parameters = new Arguments();
 		parameters.addArgument("SAMPLER_NAME", this.getName());
 		parameters.addArgument("HOST", host);
@@ -266,10 +255,10 @@ public class SubscriberSampler extends BaseMQTTSampler implements
 			parameters.addArgument("STRATEGY", "RANDOM");
 		}
 		parameters.addArgument("AGGREGATE", aggregate);
-		String quality = getQuality();
-		parameters.addArgument("QOS", quality);
-		parameters.addArgument("DURABLE",this.getCLEANSESSION());
-		parameters.addArgument("TIMEOUT", timeout);
+		//String quality = getQuality();
+		//parameters.addArgument("QOS", quality);
+		parameters.addArgument("CLEAN_SESSION",this.getCLEANSESSION());
+		parameters.addArgument("SAMPLER_TIMEOUT", samplerTimeout);
 
 		if (this.isUseAuth()) {
 			parameters.addArgument("AUTH", "TRUE");

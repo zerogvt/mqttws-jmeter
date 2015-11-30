@@ -41,6 +41,8 @@ public class PublisherSampler extends BaseMQTTSampler implements ThreadListener,
 	private static final String MESSAGE_CHOICE = "mqtt.config_msg_type"; //$NON-NLS-1$
 	private static final String QUALITY = "mqtt.quality"; //$NON-NLS-1$
 	private static final String TYPE_FIXED_VALUE = "mqtt.type_fixed_value"; //$NON-NLS-1$
+	private static final String PUBLISHER_ACKS_TIMEOUT = "mqtt.publisher.acks_timeout"; // $NON-NLS-1$
+	private static final String PUBLISHER_ACKS_TIMEOUT_DEFAULT = "5000"; // $NON-NLS-1$
 	private static String CLIENT_ID = "mqtt.clientid"; //$NON-NLS-1$
 	private static final String RETAIN = "mqtt.retain"; //$NON-NLS-1$
 	private static String USE_TIMESTAMP = "mqtt.use_timestamp"; //$NON-NLS-1$
@@ -109,6 +111,15 @@ public class PublisherSampler extends BaseMQTTSampler implements ThreadListener,
 		}
        
 	}
+	
+	public void setPublisherAcksTimeout(String count) {
+	    	setProperty(PUBLISHER_ACKS_TIMEOUT, count, PUBLISHER_ACKS_TIMEOUT_DEFAULT);
+	}
+	
+	public String getPublisherAcksTimeout() {
+        return getPropertyAsString(PUBLISHER_ACKS_TIMEOUT, PUBLISHER_ACKS_TIMEOUT_DEFAULT);
+    }
+	 
 	public void setOneConnectionPerTopic(boolean oneConnectionPerTopic) {
 
 		setProperty(OneConnectionPerTopic, oneConnectionPerTopic);
@@ -369,6 +380,7 @@ public class PublisherSampler extends BaseMQTTSampler implements ThreadListener,
 		parameters.addArgument("CLIENT_ID", getCLIENT_ID());
 		parameters.addArgument("CONNECTION_TIMEOUT", ""+getConnectionTimeout());
 		parameters.addArgument("PUBLISHER_THROTTLE", ""+getPublisherThrottle());
+		parameters.addArgument("PUBLISHER_ACKS_TIMEOUT", ""+getPublisherAcksTimeout());
 		parameters.addArgument("TOPIC", list_topic);
 
 		// ------------------------Strategy-----------------------------------//
@@ -379,6 +391,7 @@ public class PublisherSampler extends BaseMQTTSampler implements ThreadListener,
 		}
 
 		parameters.addArgument("AGGREGATE", aggregate);
+		parameters.addArgument("CLEAN_SESSION",this.getCLEANSESSION());
 
 		String quality = getQuality();
 		parameters.addArgument("QOS", quality);
