@@ -22,6 +22,7 @@ package org.apache.jmeter.protocol.mqttws.client;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.Date;
 import java.io.IOException;
@@ -91,6 +92,7 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 		host = context.getParameter("HOST");
 		throttle = Integer.parseInt((context.getParameter("PUBLISHER_THROTTLE")));
 		acksTimeout = Integer.parseInt((context.getParameter("PUBLISHER_ACKS_TIMEOUT"))); 
+		//System.out.println("Publisher acks timeout: " + acksTimeout);
 		clientId = context.getParameter("CLIENT_ID");
 		if("TRUE".equalsIgnoreCase(context.getParameter("RANDOM_SUFFIX"))){
 			clientId= MqttPublisher.getClientId(clientId,Integer.parseInt(context.getParameter("SUFFIX_LENGTH")));	
@@ -107,9 +109,9 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 		//options.setCleanSession(false);
 		options.setCleanSession(Boolean.parseBoolean((context.getParameter("CLEAN_SESSION"))));
 		//System.out.println("Pubs cleansession ====> " + context.getParameter("CLEAN_SESSION"));
-		options.setKeepAliveInterval(20);
+		options.setKeepAliveInterval(30);
 		timeout = Integer.parseInt((context.getParameter("CONNECTION_TIMEOUT")));
-		
+		myname = context.getParameter("SAMPLER_NAME");
 		String user = context.getParameter("USER"); 
 		String pwd = context.getParameter("PASSWORD");
 		if (user != null) {
@@ -119,19 +121,19 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 			}
 		}
 	
-		clientConnect();
+		clientConnect(timeout);
 		
 		client.setCallback(this);
 	}
 
-	private boolean clientConnect(){
+	private boolean clientConnect(int conntimeout){
 		//System.out.println("Publisher connecting.............................");
 		if (client.isConnected()) {
 			return true;
 		}
 		try {
 			IMqttToken token = client.connect(options);
-			token.waitForCompletion(timeout);
+			token.waitForCompletion(conntimeout);
 		} catch (MqttSecurityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -145,18 +147,24 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 	
 	public SampleResult runTest(JavaSamplerContext context) {
 		delayedSetupTest(context);
+		//Iterator<String> it = context.getParameterNamesIterator();
+		//while (it.hasNext()) {
+		//	System.out.println(it.next());
+		//}
 		SampleResult result = new SampleResult();
-		result.setSampleLabel(context.getParameter("SAMPLER_NAME"));
+		result.setSampleLabel(myname);
 		//be optimistic - will set an error if we find one
 		result.setResponseOK();
 		if (!client.isConnected() ) {
-			
-			System.out.println(myname + " >>>> Client is not connected - Aborting test");
-			result.setResponseMessage("Cannot connect to broker: "+ client.getServerURI() );
-			result.setResponseCode("FAILED");
-			result.setSuccessful(false);
-			result.setSamplerData("ERROR: Could not connect to broker: " + client.getServerURI());
-			return result;
+			log.warn( myname + " >>>> Publisher is not connected - Retrying once more...");
+			if (!this.clientConnect(timeout/2)) {
+				log.error( myname + " >>>> Publisher is not connected - Aborting test");
+				result.setResponseMessage("Cannot connect to broker: "+ client.getServerURI() );
+				result.setResponseCode("FAILED");
+				result.setSuccessful(false);
+				result.setSamplerData("ERROR: Could not connect to broker: " + client.getServerURI());
+				return result;
+			}
 		}
 		result.sampleStart(); // start stopwatch
 		try {
@@ -182,7 +190,7 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 			result.setResponseCode("FAILED");
 			result.setSuccessful(false);
 			result.setSamplerData("ERROR: Did not get acks for all of my published messages");
-			System.out.println(myname + " >>>>ERROR: Did not get acks for all of my published messages");
+			//System.out.println(myname + " >>>>ERROR: Did not get acks for all of my published messages");
 		}
 		
 		result.sampleEnd(); 
@@ -221,10 +229,10 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 	public void connectionLost(Throwable arg0) {
 		if ( reconnectOnConnLost && !connecting) {
 			connecting=true;
-			System.out.println("WARNING: Publisher client connection was lost. Reason: "+ arg0.getMessage() + ". Will try reconnection.");
-			log.info("WARNING: Publisher client connection was lost. Reason: "+ arg0.getMessage() + ". Will try reconnection.");
+			//System.out.println(myname + " WARNING: Publisher client connection was lost. Reason: "+ arg0.getMessage() + ". Will try reconnection.");
+			log.warn(myname + " WARNING: Publisher client connection was lost. Reason: "+ arg0.getMessage() + ". Will try reconnection...");
 			//System.out.println("#################################");
-			clientConnect();
+			clientConnect(timeout/2);
 			connecting=false;
 		}
 	}
@@ -352,10 +360,6 @@ private void produce(JavaSamplerContext context) throws Exception {
 				for (int i = 0; i < aggregate; ++i) {
 					byte[] payload = createPayload(message, useTimeStamp, useNumberSeq, type_value,format, charset);
 					Thread.sleep(throttle);
-					//not needed - handled automatically in connectionLost()
-					//if (!client.isConnected()) {
-					//	clientConnect();
-					//}
 					this.client.publish(topic,payload,quality,retained);
 					numMsgsSent.incrementAndGet();
 				}
@@ -370,8 +374,11 @@ private void produce(JavaSamplerContext context) throws Exception {
 			do {
 				Thread.sleep(throttle);
 				waited++;
-			} while ((numMsgsDelivered.get()!=numMsgsSent.get()) && (waited*throttle < acksTimeout) );
+			} while ((numMsgsDelivered.get() < numMsgsSent.get()) && ((waited*throttle) < acksTimeout) );
 		}
+		//if ((numMsgsDelivered.get() < numMsgsSent.get() )) {
+		//	System.out.println( myname + ":" + numMsgsSent.get() + " " + numMsgsDelivered.get() );
+		//}
 		reconnectOnConnLost = false;
 		client.disconnect();
 		//client.close();

@@ -44,11 +44,13 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
+import org.eclipse.paho.client.mqttv3.util.Debug;
 
 
 public class MqttSubscriber extends AbstractJavaSamplerClient implements Serializable, MqttCallback {
 	private static final long serialVersionUID = 1L;
 	private MqttAsyncClient client;
+	//private Debug clientDebug;
 	private List<String> allmessages =  new ArrayList<String>();
 	private AtomicInteger nummsgs = new AtomicInteger(0);
 	private long msgs_aggregate = Long.MAX_VALUE;
@@ -59,6 +61,7 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 	private String myname = this.getClass().getName();
 	private MqttConnectOptions options = new MqttConnectOptions();
 	private boolean reconnectOnConnLost = true;
+	
 	
 	//common amongst objects
 	private static final Logger log = LoggingManager.getLoggerForClass();
@@ -79,6 +82,7 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 	}
 	
 	public void delayedSetup(JavaSamplerContext context){
+		myname = context.getParameter("SAMPLER_NAME");
 		host = context.getParameter("HOST");
 		clientId = context.getParameter("CLIENT_ID");
 		
@@ -88,6 +92,7 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 		try {
 			log.debug(myname + ": Host: " + host + "clientID: " + clientId);
 			client = new MqttAsyncClient(host, clientId, new MemoryPersistence());
+			//clientDebug = client.getDebug();
 		} catch (MqttException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -103,7 +108,7 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 		//options.setMqttVersion(MqttConnectOptions.MQTT_VERSION_3_1_1);
 		options.setCleanSession(Boolean.parseBoolean((context.getParameter("CLEAN_SESSION"))));
 		//System.out.println("Subs clean session====> " + context.getParameter("CLEAN_SESSION"));
-		options.setKeepAliveInterval(20);
+		options.setKeepAliveInterval(30);
 		connectionTimeout = Integer.parseInt((context.getParameter("CONNECTION_TIMEOUT")));
 		String user = context.getParameter("USER"); 
 		String pwd = context.getParameter("PASSWORD");
@@ -122,7 +127,7 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 	}
 
 	private boolean clientConnect(){
-		//System.out.println("Subscriber connecting.............................");
+		log.info("Subscriber connecting...(conn timeout: " + connectionTimeout + ")");
 		if (client.isConnected()) {
 			return true;
 		}
@@ -135,6 +140,12 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 		} catch (MqttException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+		finally {
+			if (!client.isConnected()) {
+				//log.info("##Dumping client info (failed initial connection): ");
+				//clientDebug.dumpClientDebug();
+			}
 		}
 		return client.isConnected();
 	}
@@ -280,9 +291,10 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 	public void connectionLost(Throwable arg0) {
 		if ( reconnectOnConnLost && !connecting) {
 			connecting=true;
-			log.info("WARNING: Subscriber client connection was lost.  Reason: "+ arg0.getMessage() + ". Will try reconnection.");
-			System.out.println("WARNING: Subscriber client connection was lost.  Reason: "+ arg0.getMessage() + ". Will try reconnection.");
-			//System.out.println("#################################");
+			log.warn(myname + "WARNING: Subscriber client connection was lost.  Reason: "+ arg0.getMessage() + ". Will try reconnection.");
+			//System.out.println("WARNING: Subscriber client connection was lost.  Reason: "+ arg0.getMessage() + ". Will try reconnection.");
+			//log.info("#Dumping client debug: ");
+			//clientDebug.dumpClientDebug();
 			clientConnect();
 			connecting=false;
 		}
