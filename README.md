@@ -35,7 +35,6 @@ https://github.com/winglet/mqttws-jmeter/tree/master/ressource
 
 Right-click "Threads" and choose : Add > Sampler > MQTTWS Publisher
 
-![Alt text](images/mqttws_publisher.png)
 
 In the principal interface of MQTTWS Publisher we have the fields:  
 *Connection Info*  
@@ -55,7 +54,6 @@ the MQTT sever in this MQTT Publisher thread, with the value like the configurat
 **publisher throttle:** The time (msecs) that the publisher will wait amongst two consecutive messages.
 **Message Type:** You can choose : Text, Random Byte Array (more detail below)  
 
-![Alt text](images/Publisher_Text.png)  
 
 *Option*  
 
@@ -87,8 +85,6 @@ Text send as is.
 The data in form of random byte array with the size array as an input.  
 
 For measuring, thanks to Jmeter, we can add some listeners:  
-  
-![Alt text](images/Publisher_result.png)  
 
 
 
@@ -111,9 +107,6 @@ For measuring, thanks to Jmeter, we can add some listeners:
 the topic in one session  
 *Time out (milliseconds):* Timeout for the connection to receive message from the topic  
 
-![Alt text](images/Subscriber_result.png)  
+
  
  
-![Alt text](images/Publisher_Subscriber.png)  
-  
-    
