@@ -89,8 +89,6 @@ For measuring, thanks to Jmeter, we can add some listeners:
 
 
 ## MQTT Subscriber  
-
-![Alt text](images/mqttws_subscriber.png)  
  
  
  
