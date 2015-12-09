@@ -58,6 +58,7 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 	public int numSeq=0;
 	public int quality = 0;
 	private AtomicInteger numMsgsSent = new AtomicInteger(0);
+	private AtomicInteger numMsgsDelivered = new AtomicInteger(0);
 	private String myname = this.getClass().getName();
 	private String host ;
 	private String clientId ;
@@ -66,8 +67,6 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 	private MqttConnectOptions options = new MqttConnectOptions();
 	private int timeout=30000;
 	private boolean reconnectOnConnLost = true;
-	
-	private AtomicInteger numMsgsDelivered = new AtomicInteger(0);
 	
 	//common amongst objects
 	private static final Logger log = LoggingManager.getLoggerForClass();
@@ -109,7 +108,7 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 		//options.setCleanSession(false);
 		options.setCleanSession(Boolean.parseBoolean((context.getParameter("CLEAN_SESSION"))));
 		//System.out.println("Pubs cleansession ====> " + context.getParameter("CLEAN_SESSION"));
-		options.setKeepAliveInterval(30);
+		options.setKeepAliveInterval(0);
 		timeout = Integer.parseInt((context.getParameter("CONNECTION_TIMEOUT")));
 		myname = context.getParameter("SAMPLER_NAME");
 		String user = context.getParameter("USER"); 
@@ -146,6 +145,8 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 	
 	
 	public SampleResult runTest(JavaSamplerContext context) {
+		numMsgsDelivered.set(0);
+		numMsgsSent.set(0);
 		delayedSetupTest(context);
 		//Iterator<String> it = context.getParameterNamesIterator();
 		//while (it.hasNext()) {
@@ -173,24 +174,17 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		//System.out.println("Publisher here: " + quality + " ==== " + numMsgsDelivered.get() + "=====" + numMsgsSent.get() );
 		//this might not make much sense
 		if (quality==0) {
-			if (!client.isConnected()) {
-				result.setResponseMessage("(QoS=0) Cannot connect to broker :" + client.getServerURI());
-				result.setResponseCode("FAILED");
-				result.setSuccessful(false);
-				result.setSamplerData("ERROR: Disconnected");
-			}
+			
 		}
 		//this does though
 		int numMsgsToSend = Integer.parseInt(context.getParameter("AGGREGATE"));
-		if ( (quality>0) && (numMsgsDelivered.get()!=numMsgsToSend) ) {
-			result.setResponseMessage("ERROR: Was expecting "+ numMsgsToSend +" ACKS. Got only " + numMsgsDelivered.get() + " (Broker: " + client.getServerURI() + ")"  );
+		if ( (quality>0) && (numMsgsDelivered.get()!= numMsgsSent.get() ) ) {
+			result.setResponseMessage("ERROR: Was expecting "+ numMsgsSent.get() +" ACKS. Got only " + numMsgsDelivered.get() + " (Broker: " + client.getServerURI() + ")"  );
 			result.setResponseCode("FAILED");
 			result.setSuccessful(false);
 			result.setSamplerData("ERROR: Did not get acks for all of my published messages");
-			//System.out.println(myname + " >>>>ERROR: Did not get acks for all of my published messages");
 		}
 		
 		result.sampleEnd(); 
@@ -362,6 +356,7 @@ private void produce(JavaSamplerContext context) throws Exception {
 					Thread.sleep(throttle);
 					this.client.publish(topic,payload,quality,retained);
 					numMsgsSent.incrementAndGet();
+					log.info(myname + "Publishing msg num " + numMsgsSent.get() );
 				}
 			} 						
 		} catch (Exception e) {
