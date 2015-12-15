@@ -217,8 +217,7 @@ public class SubscriberSampler extends BaseMQTTSampler implements
 		//System.out.println("Received " + ListenerforSubscribe.count.get() +" messages");
 		if (this.subscriber != null) {
 			try {
-				this.subscriber.close(context);
-				
+				this.subscriber.close(context);	
 			} catch (Exception e) {
 				e.printStackTrace();
 				log.warn(e.getLocalizedMessage(), e);

@@ -22,9 +22,12 @@ package org.apache.jmeter.protocol.mqttws.client;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -41,6 +44,7 @@ import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.apache.commons.codec.binary.Base64;
@@ -52,13 +56,11 @@ import org.apache.commons.codec.binary.Hex;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 
 
-public class MqttPublisher extends AbstractJavaSamplerClient implements Serializable, MqttCallback {
+public class MqttPubSub extends AbstractJavaSamplerClient implements Serializable, MqttCallback {
 	private static final long serialVersionUID = 1L;
 	private MqttAsyncClient client;
 	public int numSeq=0;
 	public int quality = 0;
-	private AtomicInteger numMsgsSent = new AtomicInteger(0);
-	private AtomicInteger numMsgsDelivered = new AtomicInteger(0);
 	private String myname = this.getClass().getName();
 	private String host ;
 	private String clientId ;
@@ -67,6 +69,13 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 	private MqttConnectOptions options = new MqttConnectOptions();
 	private int timeout=30000;
 	private boolean reconnectOnConnLost = true;
+	private String heartbeatChannel = "user/72353640-8f4a-102b-8b12-99c200cfc5b7/device-333/request";
+	Timer heartbeatTimer = new Timer("HeartBeat Timer");
+	private HashMap<Integer, Boolean> SentMsgsAcksMap = new HashMap<Integer, Boolean>();
+	private HashMap<Integer, String> InMsgsMap = new HashMap<Integer, String>();
+	private HashMap<Integer, String> OutMsgsMap = new HashMap<Integer, String>();
+	
+	
 	
 	//common amongst objects
 	private static final Logger log = LoggingManager.getLoggerForClass();
@@ -94,7 +103,7 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 		//System.out.println("Publisher acks timeout: " + acksTimeout);
 		clientId = context.getParameter("CLIENT_ID");
 		if("TRUE".equalsIgnoreCase(context.getParameter("RANDOM_SUFFIX"))){
-			clientId= MqttPublisher.getClientId(clientId,Integer.parseInt(context.getParameter("SUFFIX_LENGTH")));	
+			clientId= MqttPubSub.getClientId(clientId,Integer.parseInt(context.getParameter("SUFFIX_LENGTH")));	
 		}
 		try {
 			log.debug("Host: " + host + "clientID: " + clientId);
@@ -145,13 +154,9 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 	
 	
 	public SampleResult runTest(JavaSamplerContext context) {
-		numMsgsDelivered.set(0);
-		numMsgsSent.set(0);
+		SentMsgsAcksMap.clear();
 		delayedSetupTest(context);
-		//Iterator<String> it = context.getParameterNamesIterator();
-		//while (it.hasNext()) {
-		//	System.out.println(it.next());
-		//}
+		
 		SampleResult result = new SampleResult();
 		result.setSampleLabel(myname);
 		//be optimistic - will set an error if we find one
@@ -167,6 +172,7 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 				return result;
 			}
 		}
+		startHeartBeat(heartbeatTimer);
 		result.sampleStart(); // start stopwatch
 		try {
 			produce(context);
@@ -178,18 +184,16 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 		if (quality==0) {
 			
 		}
-		//this does though
-		int numMsgsToSend = Integer.parseInt(context.getParameter("AGGREGATE"));
-		if ( (quality>0) && (numMsgsDelivered.get()!= numMsgsSent.get() ) ) {
-			result.setResponseMessage("ERROR: Was expecting "+ numMsgsSent.get() +" ACKS. Got only " + numMsgsDelivered.get() + " (Broker: " + client.getServerURI() + ")"  );
+		if ( (quality>0) && (getNumMsgsDelivered()!= getNumMsgsSent() ) ) {
+			result.setResponseMessage("ERROR: Was expecting "+ getNumMsgsSent() +" ACKS. Got only " + getNumMsgsDelivered() + " (Broker: " + client.getServerURI() + ")"  );
 			result.setResponseCode("FAILED");
 			result.setSuccessful(false);
 			result.setSamplerData("ERROR: Did not get acks for all of my published messages");
 		}
 		
 		result.sampleEnd(); 
-		result.setSamplerData("Published " + numMsgsSent.get() + " messages" + 
-				"\nGot ack for: " + numMsgsDelivered.get() +
+		result.setSamplerData("Published " + getNumMsgsSent() + " messages" + 
+				"\nGot ack for: " + getNumMsgsDelivered() +
 				"\nTopic: " + context.getParameter("TOPIC") +
 				"\nQoS: " + quality +
 				"\nBroker: " + host +
@@ -200,14 +204,30 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 	
 	}
 
-
+	public long getNumMsgsDelivered() {
+		long numMsgsDelivered = 0;
+		for (int key: SentMsgsAcksMap.keySet() ) {
+			if (SentMsgsAcksMap.get(key)) {
+				numMsgsDelivered++;
+			}
+		}
+		return numMsgsDelivered;
+	}
+	
+	public long getNumMsgsSent() {
+		return SentMsgsAcksMap.size();
+	}
+	
 	public void close(JavaSamplerContext context) {
+		heartbeatTimer.cancel();
 		try {
 			client.close();
 		} catch (MqttException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		flushMessages();
+		
 	}
 	
 	private static final String mycharset = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -236,12 +256,18 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 	}
 
 	@Override
-	public void deliveryComplete(IMqttDeliveryToken arg0) {
-		numMsgsDelivered.incrementAndGet();
+	public void deliveryComplete(IMqttDeliveryToken token) {
+		if (SentMsgsAcksMap.containsKey(token.getMessageId())) {
+			SentMsgsAcksMap.put(token.getMessageId(), true);
+		}
+		//System.out.println("Delivery complete for Msg with Topic: " + token.getTopics()[0]);
+		//System.out.println("Delivery complete for Msg with ID: " + token.getMessageId());
 	}
 
 	@Override
 	public void messageArrived(String str, MqttMessage msg) throws Exception {
+		System.out.println("Got message: (id= " + msg.getId() + ")" + msg.toString() + "\n");
+		InMsgsMap.put(msg.getId(), msg.toString());
 	}
 	
 	
@@ -349,6 +375,7 @@ private void produce(JavaSamplerContext context) throws Exception {
 			} else if (MQTTPublisherGui.AT_MOST_ONCE.equals(qos)) {
 				quality = 0;
 			}
+			client.subscribe(topic, quality);
 			// Retained
 			boolean retained = false;
 			if ("TRUE".equals(isRetained))
@@ -358,9 +385,9 @@ private void produce(JavaSamplerContext context) throws Exception {
 				for (int i = 0; i < aggregate; ++i) {
 					byte[] payload = createPayload(message, useTimeStamp, useNumberSeq, type_value,format, charset);
 					Thread.sleep(throttle);
-					this.client.publish(topic,payload,quality,retained);
-					numMsgsSent.incrementAndGet();
-					log.info(myname + "Publishing msg num " + numMsgsSent.get() );
+					IMqttDeliveryToken token = this.client.publish(topic,payload,quality,retained);
+					OutMsgsMap.put(i, topic+"#"+message);
+					SentMsgsAcksMap.put(token.getMessageId(), false);
 				}
 			} 						
 		} catch (Exception e) {
@@ -373,7 +400,7 @@ private void produce(JavaSamplerContext context) throws Exception {
 			do {
 				Thread.sleep(throttle);
 				waited++;
-			} while ((numMsgsDelivered.get() < numMsgsSent.get()) && ((waited*throttle) < acksTimeout) );
+			} while ((getNumMsgsDelivered() < getNumMsgsSent()) && ((waited*throttle) < acksTimeout) );
 		}
 		//if ((numMsgsDelivered.get() < numMsgsSent.get() )) {
 		//	System.out.println( myname + ":" + numMsgsSent.get() + " " + numMsgsDelivered.get() );
@@ -457,6 +484,68 @@ private void produce(JavaSamplerContext context) throws Exception {
 			buff.append(" ");
 		}
 		return buff.toString();
+	}
+	
+	private AtomicInteger heartbeatsNum = new AtomicInteger(0);
+	private TimerTask heartbeatTask = new TimerTask () {
+		@Override
+		public void run() {
+			heartbeatsNum.incrementAndGet();
+			String heartbeatMsg = "{  \"type\": \"heartbeat\",  \"id\": \"cor-id-#11\" }";
+			byte[] payload = null;
+			//payload = createPayload(heartbeatMsg, "TRUE", "TRUE", "TEXT", "mqtt_plain_text", "US-ASCII");
+			payload = heartbeatMsg.getBytes();
+			try {
+				IMqttDeliveryToken token = client.publish(heartbeatChannel,payload,0, false, 0, null);
+				OutMsgsMap.put(token.getMessageId(), heartbeatChannel + "#" + heartbeatMsg);
+			} catch (MqttPersistenceException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (MqttException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+	};
+	
+	private boolean startHeartBeat(Timer t) {
+		try {
+			client.subscribe(heartbeatChannel, 1);
+		} catch (MqttException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		t.scheduleAtFixedRate(heartbeatTask, 0, 1000);
+		return true;
+		
+	}
+	
+	@Override
+	public	void teardownTest(JavaSamplerContext context) {
+		System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+		heartbeatTimer.cancel();
+		try {
+			client.close();
+		} catch (MqttException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void flushMessages() {
+		StringBuffer strb = new StringBuffer();
+		strb.append("\nSend " + OutMsgsMap.size() + " messages\n");
+		for (int key : OutMsgsMap.keySet()) {
+			strb.append("\nid: " + key + " : " + OutMsgsMap.get(key));
+			strb.append("\n");
+		}
+		strb.append("\n\nReceived " + InMsgsMap.size() + " messages");
+		for (int key : InMsgsMap.keySet()) {
+			strb.append("\nid: " + key + " : " + InMsgsMap.get(key));
+			strb.append("\n");
+		}
+		System.out.println(strb.toString());
 	}
 	
 }

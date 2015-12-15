@@ -274,7 +274,7 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 
 	public void close(JavaSamplerContext context) {
 		try {
-			client.disconnect();
+			client.close();
 		} catch (MqttException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

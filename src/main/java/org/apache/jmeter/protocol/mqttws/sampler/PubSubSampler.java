@@ -24,15 +24,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
-import org.apache.jmeter.protocol.mqttws.client.MqttPublisher;
-import org.apache.jmeter.protocol.mqttws.control.gui.MQTTPublisherGui;
+import org.apache.jmeter.protocol.mqttws.client.MqttPubSub;
+import org.apache.jmeter.protocol.mqttws.control.gui.MQTTPubSubGui;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.testelement.TestStateListener;
 import org.apache.jmeter.testelement.ThreadListener;
 import org.apache.jorphan.logging.LoggingManager;
 import org.apache.log.Logger;
 
-public class PublisherSampler extends BaseMQTTSampler implements ThreadListener,TestStateListener  {
+public class PubSubSampler extends BaseMQTTSampler implements ThreadListener,TestStateListener  {
 
 	private static final long serialVersionUID = 233L;
 	private static final Logger log = LoggingManager.getLoggerForClass();
@@ -60,7 +60,7 @@ public class PublisherSampler extends BaseMQTTSampler implements ThreadListener,
 	private static String OneConnectionPerTopic = "mqtt.one_connection_per_topic"; //$NON-NLS-1$
 	private static String RandomSuffix="mqtt.random_suffix_client_id";//$NON-NLS-1$
 	private static String Length="mqtt.suffix.length";//$NON-NLS-1$
-	public transient MqttPublisher producer = null;
+	public transient MqttPubSub producer = null;
 	public static AtomicInteger numberOfConnection= new AtomicInteger(0);
 	private JavaSamplerContext context = null;
 
@@ -68,7 +68,7 @@ public class PublisherSampler extends BaseMQTTSampler implements ThreadListener,
 	 * Constructor
 	 */
 
-	public PublisherSampler() {
+	public PubSubSampler() {
 	}
 
 	// ---------------------Get/Set Property--------------------------//
@@ -317,7 +317,7 @@ public class PublisherSampler extends BaseMQTTSampler implements ThreadListener,
 		if (producer == null) {
 
 			try {
-				producer = new MqttPublisher();
+				producer = new MqttPubSub();
 			} catch (Exception e) {
 				log.warn(e.getLocalizedMessage(), e);
 			}
@@ -334,6 +334,7 @@ public class PublisherSampler extends BaseMQTTSampler implements ThreadListener,
 			producer.close(context);
 			
 		}
+
 	}
 
 	// -------------------------Sample------------------------------------//
@@ -349,7 +350,7 @@ public class PublisherSampler extends BaseMQTTSampler implements ThreadListener,
 
 	@Override
 	public void testEnded() {
-		log.debug("Thread ended " + new Date());
+		log.debug("Test ended " + new Date());
 		if (producer != null) {
 			producer.close(context);
 		}
@@ -384,7 +385,7 @@ public class PublisherSampler extends BaseMQTTSampler implements ThreadListener,
 		parameters.addArgument("TOPIC", list_topic);
 
 		// ------------------------Strategy-----------------------------------//
-		if (MQTTPublisherGui.ROUND_ROBIN.equals(this.getSTRATEGY())) {
+		if (MQTTPubSubGui.ROUND_ROBIN.equals(this.getSTRATEGY())) {
 			parameters.addArgument("STRATEGY", "ROUND_ROBIN");
 		} else {
 			parameters.addArgument("STRATEGY", "RANDOM");
@@ -419,29 +420,29 @@ public class PublisherSampler extends BaseMQTTSampler implements ThreadListener,
 		//parameters.addArgument("TYPE_MESSAGE", "TEXT");
 		//parameters.addArgument("TYPE_VALUE", "TEXT");
 		
-		if (this.getMessageChoice().equals(MQTTPublisherGui.TEXT_MSG_RSC)) {
+		if (this.getMessageChoice().equals(MQTTPubSubGui.TEXT_MSG_RSC)) {
 			parameters.addArgument("MESSAGE", getTextMessage());
 			parameters.addArgument("TYPE_MESSAGE", "TEXT");
 			parameters.addArgument("TYPE_VALUE", "TEXT");
 		} 
-		else if (this.getMessageChoice().equals(MQTTPublisherGui.TEXT_POOL_RSC)) {
+		else if (this.getMessageChoice().equals(MQTTPubSubGui.TEXT_POOL_RSC)) {
 			parameters.addArgument("MESSAGE", getTextMessage());
 			parameters.addArgument("TYPE_MESSAGE", "TEXT_POOL");
 			parameters.addArgument("TYPE_VALUE", "TEXT_POOL");
 		} 
-		else if (this.getMessageChoice().equals(MQTTPublisherGui.FIXED_VALUE)) {
+		else if (this.getMessageChoice().equals(MQTTPubSubGui.FIXED_VALUE)) {
 			parameters.addArgument("MESSAGE", getFIXED_VALUE());
 			parameters.addArgument("TYPE_MESSAGE", "FIXED");
 			parameters.addArgument("TYPE_VALUE", getTYPE_FIXED_VALUE());
 		} else if (this.getMessageChoice().equals(
-				MQTTPublisherGui.GENERATED_VALUE)) {
+				MQTTPubSubGui.GENERATED_VALUE)) {
 			parameters.addArgument("TYPE_MESSAGE", "RANDOM");
 			parameters.addArgument("TYPE_VALUE", getTYPE_GENERATED_VALUE());
 			parameters.addArgument("SEED", getSEED());
 			parameters.addArgument("MIN_RANDOM_VALUE", getMIN_RANDOM_VALUE());
 			parameters.addArgument("MAX_RANDOM_VALUE", getMAX_RANDOM_VALUE());
 			parameters.addArgument("TYPE_RANDOM_VALUE", getTYPE_RANDOM_VALUE());
-		} else if (this.getMessageChoice().equals(MQTTPublisherGui.BIG_VOLUME)) {
+		} else if (this.getMessageChoice().equals(MQTTPubSubGui.BIG_VOLUME)) {
 			parameters.addArgument("TYPE_MESSAGE", "BYTE_ARRAY");
 			parameters.addArgument("SIZE_ARRAY", this.getSIZE_ARRAY());
 		}
@@ -456,7 +457,7 @@ public class PublisherSampler extends BaseMQTTSampler implements ThreadListener,
 			parameters.addArgument("AUTH", "FALSE");
 		// -----------------------Format--------------------------------------//
 		parameters.addArgument("FORMAT", getFORMAT());
-		if (this.getFORMAT().equals(MQTTPublisherGui.PLAIN_TEXT)) {
+		if (this.getFORMAT().equals(MQTTPubSubGui.PLAIN_TEXT)) {
 			parameters.addArgument("CHARSET", getCHARSET());
 
 		} else
