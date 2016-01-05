@@ -22,6 +22,7 @@ package org.apache.jmeter.protocol.mqttws.client;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Date;
@@ -54,14 +55,14 @@ import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 
 public class MqttPublisher extends AbstractJavaSamplerClient implements Serializable, MqttCallback {
 	private static final long serialVersionUID = 1L;
-	private MqttAsyncClient client;
+	private static HashMap<String,MqttAsyncClient> clientsMap = new HashMap<String,MqttAsyncClient>();
 	public int numSeq=0;
 	public int quality = 0;
 	private AtomicInteger numMsgsSent = new AtomicInteger(0);
 	private AtomicInteger numMsgsDelivered = new AtomicInteger(0);
 	private String myname = this.getClass().getName();
 	private String host ;
-	private String clientId ;
+	private String clientId = null;
 	private int throttle=0;
 	private int acksTimeout = 5000;
 	private MqttConnectOptions options = new MqttConnectOptions();
@@ -86,6 +87,11 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 		//nothing yet
 	}
 	
+	//Do not use prior to client being initialised by delayedSetupTest()
+	private MqttAsyncClient client() {
+		return clientsMap.get(clientId);
+	}
+	
 	public void delayedSetupTest(JavaSamplerContext context){
 		log.debug(myname + ">>>> in setupTest");
 		host = context.getParameter("HOST");
@@ -98,7 +104,10 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 		}
 		try {
 			log.debug("Host: " + host + "clientID: " + clientId);
-			client = new MqttAsyncClient(host, clientId, new MemoryPersistence());
+			if (!clientsMap.containsKey(clientId)) {
+				MqttAsyncClient cli = new MqttAsyncClient(host, clientId, new MemoryPersistence());
+				clientsMap.put(clientId, cli);
+			}
 		} catch (MqttException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -122,16 +131,16 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 	
 		clientConnect(timeout);
 		
-		client.setCallback(this);
+		client().setCallback(this);
 	}
 
 	private boolean clientConnect(int conntimeout){
 		//System.out.println("Publisher connecting.............................");
-		if (client.isConnected()) {
+		if (client().isConnected()) {
 			return true;
 		}
 		try {
-			IMqttToken token = client.connect(options);
+			IMqttToken token = client().connect(options);
 			token.waitForCompletion(conntimeout);
 		} catch (MqttSecurityException e) {
 			// TODO Auto-generated catch block
@@ -140,7 +149,7 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return client.isConnected();
+		return client().isConnected();
 	}
 	
 	
@@ -156,14 +165,14 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 		result.setSampleLabel(myname);
 		//be optimistic - will set an error if we find one
 		result.setResponseOK();
-		if (!client.isConnected() ) {
+		if (!client().isConnected() ) {
 			log.warn( myname + " >>>> Publisher is not connected - Retrying once more...");
 			if (!this.clientConnect(timeout/2)) {
 				log.error( myname + " >>>> Publisher is not connected - Aborting test");
-				result.setResponseMessage("Cannot connect to broker: "+ client.getServerURI() );
+				result.setResponseMessage("Cannot connect to broker: "+ client().getServerURI() );
 				result.setResponseCode("FAILED");
 				result.setSuccessful(false);
-				result.setSamplerData("ERROR: Could not connect to broker: " + client.getServerURI());
+				result.setSamplerData("ERROR: Could not connect to broker: " + client().getServerURI());
 				return result;
 			}
 		}
@@ -181,7 +190,7 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 		//this does though
 		int numMsgsToSend = Integer.parseInt(context.getParameter("AGGREGATE"));
 		if ( (quality>0) && (numMsgsDelivered.get()!= numMsgsSent.get() ) ) {
-			result.setResponseMessage("ERROR: Was expecting "+ numMsgsSent.get() +" ACKS. Got only " + numMsgsDelivered.get() + " (Broker: " + client.getServerURI() + ")"  );
+			result.setResponseMessage("ERROR: Was expecting "+ numMsgsSent.get() +" ACKS. Got only " + numMsgsDelivered.get() + " (Broker: " + client().getServerURI() + ")"  );
 			result.setResponseCode("FAILED");
 			result.setSuccessful(false);
 			result.setSamplerData("ERROR: Did not get acks for all of my published messages");
@@ -202,12 +211,14 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 
 
 	public void close(JavaSamplerContext context) {
+		/*
 		try {
 			client.close();
 		} catch (MqttException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		*/
 	}
 	
 	private static final String mycharset = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -358,7 +369,7 @@ private void produce(JavaSamplerContext context) throws Exception {
 				for (int i = 0; i < aggregate; ++i) {
 					byte[] payload = createPayload(message, useTimeStamp, useNumberSeq, type_value,format, charset);
 					Thread.sleep(throttle);
-					this.client.publish(topic,payload,quality,retained);
+					client().publish(topic,payload,quality,retained);
 					numMsgsSent.incrementAndGet();
 					log.info(myname + "Publishing msg num " + numMsgsSent.get() );
 				}
@@ -378,9 +389,8 @@ private void produce(JavaSamplerContext context) throws Exception {
 		//if ((numMsgsDelivered.get() < numMsgsSent.get() )) {
 		//	System.out.println( myname + ":" + numMsgsSent.get() + " " + numMsgsDelivered.get() );
 		//}
-		reconnectOnConnLost = false;
-		client.disconnect();
-		//client.close();
+		//reconnectOnConnLost = false;
+		//client.disconnect();
 	}
 	
 	public byte[] createPayload(String message, String useTimeStamp, String useNumSeq ,String type_value, String format, String charset) throws IOException, NumberFormatException {
