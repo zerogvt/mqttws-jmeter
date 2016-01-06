@@ -212,13 +212,13 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 
 
 	public void close(JavaSamplerContext context) {
-		System.out.println("Publisher CLOSE");
+		//System.out.println("Publisher CLOSE");
 		if (client()==null) {
 			return;
 		}
 		try {
 			reconnectOnConnLost = false;
-			System.out.println("Publisher CLOSING my client");
+			//System.out.println("Publisher CLOSING my client");
 			//next is very important because if we try normal disconnection 
 			//it won't work resulting in high CPU usage after the test finishes
 			client().disconnectForcibly();
@@ -232,7 +232,7 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 	
 	
 	public void cleanUpOnTestEnd(JavaSamplerContext context) {
-		System.out.println("Publisher cleanup");
+		//System.out.println("Publisher cleanup");
 		for (String key: clientsMap.keySet()) {
 			try {
 				clientsMap.get(key).disconnect();
@@ -265,7 +265,7 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 		
 		if ( reconnectOnConnLost && !connecting) {
 			connecting=true;
-			System.out.println(myname + " WARNING: Publisher client connection was lost. Reason: "+ arg0.getMessage() + ". Will try reconnection.");
+			//System.out.println(myname + " WARNING: Publisher client connection was lost. Reason: "+ arg0.getMessage() + ". Will try reconnection.");
 			log.warn(myname + " WARNING: Publisher client connection was lost. Reason: "+ arg0.getMessage() + ". Will try reconnection...");
 			//System.out.println("#################################");
 			clientConnect(timeout/2);

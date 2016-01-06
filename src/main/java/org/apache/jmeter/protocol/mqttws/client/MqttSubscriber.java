@@ -96,7 +96,7 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 			clientId= MqttPublisher.getClientId(clientId,Integer.parseInt(context.getParameter("SUFFIX_LENGTH")));	
 		}
 		try {
-			System.out.println(myname + ": Host: " + host + "clientID: " + clientId);
+			log.info(myname + ": Host: " + host + "clientID: " + clientId);
 			if (!clientsMap.containsKey(clientId)) {
 				MqttAsyncClient cli = new MqttAsyncClient(host, clientId, new MemoryPersistence());
 				clientsMap.put(clientId, cli);
@@ -191,7 +191,7 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 		result.sampleStart(); // start stopwatch
 		
 		try {
-			System.out.println(myname + ": Subscribing to topic: " + context.getParameter("TOPIC"));
+			log.info(myname + ": Subscribing to topic: " + context.getParameter("TOPIC"));
 			log.info(myname + ": Subscribing to topic: " + context.getParameter("TOPIC"));
 			client().subscribe(context.getParameter("TOPIC"), 0);
 		} catch (MqttException e) {
@@ -202,7 +202,7 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 		EndTask endtask = new EndTask();
 		Timer timer = new Timer();
 		timer.schedule( endtask, samplerTimeout);
-		System.out.println("starting listening: " + new Date().toString() + "(timeout= " + samplerTimeout + ")");
+		log.info("starting listening: " + new Date().toString() + "(timeout= " + samplerTimeout + ")");
 		while ( !endtask.isTimeUp() && !stopTest) {
 			if (nummsgs.get()<msgs_aggregate) {
 				try {
@@ -283,7 +283,7 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 	
 
 	public void cleanUpOnTestEnd(JavaSamplerContext context) {
-		System.out.println("Subscriber cleanup");
+		log.info("Subscriber cleanup");
 		for (String key: clientsMap.keySet()) {
 			try {
 				clientsMap.get(key).disconnect();
@@ -298,12 +298,10 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 	}
 
 	public void close(JavaSamplerContext context) {
-		System.out.println("Subscriber CLOSE");
 		if (client()==null) {
 			return;
 		}
 		 try {
-			 System.out.println("Subscriber CLOSING my client");
 			 client().disconnectForcibly();
 			 client().close();
 			 clientsMap.remove(clientId);
@@ -347,7 +345,7 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 
 	@Override
 	public void messageArrived(String str, MqttMessage msg) throws Exception {
-		System.out.println(myname + "=============>: num msgs: " + nummsgs.get() +  ". Got message: " + new String(msg.getPayload()));
+		//System.out.println(myname + "=============>: num msgs: " + nummsgs.get() +  ". Got message: " + new String(msg.getPayload()));
 		log.info(myname + "=============>: num msgs: " + nummsgs.get() +  ". Got message: " + new String(msg.getPayload()));
 		if (stopTest)
 			return;
