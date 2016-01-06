@@ -164,7 +164,7 @@ public class SubscriberSampler extends BaseMQTTSampler implements
 		log.debug("Thread ended " + new Date());
 		if (this.subscriber != null) {
 			try {
-				this.subscriber.close(context);
+				this.subscriber.cleanUpOnTestEnd(context);
 
 			} catch (Exception e) {
 				e.printStackTrace();

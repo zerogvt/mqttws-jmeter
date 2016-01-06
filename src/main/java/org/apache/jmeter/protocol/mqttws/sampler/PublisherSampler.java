@@ -333,6 +333,7 @@ public class PublisherSampler extends BaseMQTTSampler implements ThreadListener,
 		if (producer != null) {
 			producer.close(context);
 			
+			
 		}
 	}
 
@@ -351,7 +352,7 @@ public class PublisherSampler extends BaseMQTTSampler implements ThreadListener,
 	public void testEnded() {
 		log.debug("Thread ended " + new Date());
 		if (producer != null) {
-			producer.close(context);
+			producer.cleanUpOnTestEnd(context);
 		}
 	}
 

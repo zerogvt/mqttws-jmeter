@@ -24,6 +24,7 @@ import java.io.DataOutputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Random;
 import java.util.Date;
 import java.io.IOException;
@@ -211,15 +212,40 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 
 
 	public void close(JavaSamplerContext context) {
-		/*
+		System.out.println("Publisher CLOSE");
+		if (client()==null) {
+			return;
+		}
 		try {
-			client.close();
+			reconnectOnConnLost = false;
+			System.out.println("Publisher CLOSING my client");
+			//next is very important because if we try normal disconnection 
+			//it won't work resulting in high CPU usage after the test finishes
+			client().disconnectForcibly();
+			client().close();
+			clientsMap.remove(clientId);
 		} catch (MqttException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		*/
 	}
+	
+	
+	public void cleanUpOnTestEnd(JavaSamplerContext context) {
+		System.out.println("Publisher cleanup");
+		for (String key: clientsMap.keySet()) {
+			try {
+				clientsMap.get(key).disconnect();
+				clientsMap.get(key).close();
+				clientsMap.remove(key);
+			} catch (MqttException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}	
+		}
+		this.teardownTest(context);
+	}
+
 	
 	private static final String mycharset = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	public static String getClientId(String clientPrefix, int suffixLength) {
@@ -236,9 +262,10 @@ public class MqttPublisher extends AbstractJavaSamplerClient implements Serializ
 	private boolean connecting=false;
 	@Override
 	public void connectionLost(Throwable arg0) {
+		
 		if ( reconnectOnConnLost && !connecting) {
 			connecting=true;
-			//System.out.println(myname + " WARNING: Publisher client connection was lost. Reason: "+ arg0.getMessage() + ". Will try reconnection.");
+			System.out.println(myname + " WARNING: Publisher client connection was lost. Reason: "+ arg0.getMessage() + ". Will try reconnection.");
 			log.warn(myname + " WARNING: Publisher client connection was lost. Reason: "+ arg0.getMessage() + ". Will try reconnection...");
 			//System.out.println("#################################");
 			clientConnect(timeout/2);
@@ -390,7 +417,7 @@ private void produce(JavaSamplerContext context) throws Exception {
 		//	System.out.println( myname + ":" + numMsgsSent.get() + " " + numMsgsDelivered.get() );
 		//}
 		//reconnectOnConnLost = false;
-		//client.disconnect();
+		//client().disconnect();
 	}
 	
 	public byte[] createPayload(String message, String useTimeStamp, String useNumSeq ,String type_value, String format, String charset) throws IOException, NumberFormatException {
