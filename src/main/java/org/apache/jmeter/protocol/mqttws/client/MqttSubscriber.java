@@ -179,6 +179,9 @@ public class MqttSubscriber extends AbstractJavaSamplerClient implements Seriali
 		result.setSampleLabel(context.getParameter("SAMPLER_NAME"));
 		//be optimistic - will set an error if we find one
 		result.setResponseOK();
+
+		allmessages.clear();
+		stopTest = false;
 		
 		if (!client().isConnected() ) {
 			log.error(myname + " >>>> Client is not connected - Returning false");
